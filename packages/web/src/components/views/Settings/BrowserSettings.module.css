@@ -1,0 +1,14 @@
+/* Allow browser controls to wrap when rows narrow or text is enlarged. */
+.action:is(.action) {
+  max-inline-size: 100%;
+  white-space: normal;
+
+  & > span {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
+.actions {
+  flex-wrap: wrap;
+}

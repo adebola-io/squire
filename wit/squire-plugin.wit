@@ -1,0 +1,340 @@
+// Squire Plugin Component ABI.
+//
+// Components are trusted native code. They run host programs and read and
+// write the host filesystem, like a child process Squire started. This world
+// is the supported surface, not a sandbox.
+//
+// Squire supports only the current ABI; incompatible changes require affected
+// Plugins to be rebuilt.
+
+package squire:plugin;
+
+/// Manifest-declared secret lookup.
+///
+/// Only names declared in the Plugin manifest are resolvable. Values are
+/// handed to the component as-is, and results are returned to the caller
+/// exactly as produced.
+interface secrets {
+  get: func(name: string) -> option<string>;
+}
+
+/// Squire-controlled native command execution.
+interface commands {
+  record command-request {
+    program: string,
+    arguments: list<string>,
+    working-directory: option<string>,
+    environment: list<tuple<string, string>>,
+    stdin: option<string>,
+  }
+
+  record command-result {
+    exit-code: s32,
+    stdout: string,
+    stderr: string,
+    stdout-truncated: bool,
+    stderr-truncated: bool,
+  }
+
+  /// Runs a host program selected by the component. Squire resolves the
+  /// working directory, constructs the child-process environment needed for
+  /// normal host tooling, applies the invocation deadline, and captures
+  /// bounded output.
+  run: func(request: command-request) -> result<command-result, string>;
+}
+
+/// Managed background processes scoped to the installed Plugin id.
+///
+/// Foreground `commands.run` waits for exit. This interface spawns detached
+/// process-group leaders whose stdout/stderr drain into capped per-process
+/// ring buffers while the invocation returns. Handles are opaque strings
+/// namespaced per installed Plugin: a component can only observe processes
+/// it spawned itself.
+interface processes {
+  record spawn-request {
+    /// Optional plugin-scoped identity used to atomically reuse the running
+    /// process with the same key instead of spawning another copy.
+    key: option<string>,
+    program: string,
+    arguments: list<string>,
+    working-directory: option<string>,
+    environment: list<tuple<string, string>>,
+  }
+
+  record process-info {
+    id: string,
+    pid: u32,
+    key: option<string>,
+    program: string,
+    arguments: list<string>,
+    working-directory: option<string>,
+    environment: list<tuple<string, string>>,
+  }
+
+  record spawn-result {
+    process: process-info,
+    reused: bool,
+  }
+
+  record process-status {
+    running: bool,
+    exit-code: option<s32>,
+    pid: u32,
+  }
+
+  record process-logs {
+    stdout: string,
+    stderr: string,
+    stdout-truncated: bool,
+    stderr-truncated: bool,
+    running: bool,
+    exit-code: option<s32>,
+  }
+
+  /// A system process listening on one or more TCP ports. Unlike handles
+  /// returned by `spawn`, discovered processes are not owned by the Plugin
+  /// and cannot be stopped through this interface.
+  record listening-process {
+    pid: u32,
+    /// Package-manager lifecycle script inherited by the listener, when
+    /// available (for example npm_lifecycle_event=dev).
+    lifecycle-event: option<string>,
+    /// Values for the explicitly requested environment keys that were visible
+    /// on the listener process.
+    environment: list<tuple<string, string>>,
+    ports: list<u16>,
+  }
+
+  /// Spawns a process-group leader. The working directory must be absolute
+  /// and exist. The child inherits the host environment with `PATH` replaced
+  /// by the invocation path, then the explicit overrides.
+  spawn: func(request: spawn-request) -> result<spawn-result, string>;
+  /// Lists this Plugin's currently running managed processes.
+  list-processes: func() -> list<process-info>;
+  /// Reports liveness and the exit code once the process has exited.
+  status: func(id: string) -> result<process-status, string>;
+  /// Discovers system processes whose current working directory is exactly
+  /// `working-directory` and which are listening on TCP ports. Only the
+  /// requested environment keys plus the package-manager lifecycle event are
+  /// exposed. Discovery is read-only and does not make those processes
+  /// Plugin-owned.
+  find-listeners: func(
+    working-directory: string,
+    environment-keys: list<string>,
+  ) -> result<list<listening-process>, string>;
+  /// Returns buffered logs (trailing bytes, most recent first, up to
+  /// `max-bytes` per stream).
+  read: func(id: string, max-bytes: u32) -> result<process-logs, string>;
+  /// Graceful `SIGTERM` to the process group, then `SIGKILL` after a grace
+  /// period. Removes the record.
+  stop: func(id: string) -> result<string, string>;
+  /// Forgets a finished record. Never signals.
+  remove: func(id: string) -> result<_, string>;
+}
+
+/// Host-side exclusive locks with kernel semantics.
+///
+/// Names are scoped per installed Plugin; ownership belongs to one invocation.
+/// Kernel file locks provide exclusion on Unix and Windows. `acquire` waits
+/// until the lock is held or the invocation deadline expires. All owned locks
+/// are released when the invocation ends, including on traps.
+interface locks {
+  acquire: func(name: string) -> result<_, string>;
+  try-acquire: func(name: string) -> result<bool, string>;
+  release: func(name: string) -> result<_, string>;
+}
+
+/// Unified environment queries for portable components.
+interface env {
+  operating-system: func() -> string;
+  architecture: func() -> string;
+  roots: func() -> list<string>;
+  /// The installed Plugin's private data directory. Created on first
+  /// request; the error reports a failed create.
+  data-dir: func() -> result<string, string>;
+  squire-home: func() -> string;
+  deadline-unix-ms: func() -> u64;
+  /// This invocation's staging directory, for files an outside program
+  /// writes that should become `attachment-source.path` attachments.
+  /// Created on first request and removed when the invocation ends; the
+  /// error reports a failed create. Content already in memory should be
+  /// returned as `attachment-source.bytes` instead.
+  staging-directory: func() -> result<string, string>;
+}
+
+/// Host-mediated HTTP egress.
+///
+/// The guest supplies absolute URLs and its own headers (including any
+/// credentials it read through `squire:plugin/secrets`). The host validates
+/// the URL, performs the request with redirects disabled, and streams the
+/// response with hard byte caps. `request` is for destinations that come
+/// from the component's own code or installed secrets; `request-public` is
+/// for any other destination.
+interface network {
+  record query-pair {
+    name: string,
+    value: string,
+  }
+
+  record header-pair {
+    name: string,
+    value: string,
+  }
+
+  record network-request {
+    /// Absolute request URL, e.g. `https://api.github.com/repos/a/b`.
+    /// Must parse and include a host; anything else is the plugin's business.
+    url: string,
+    /// Uppercase HTTP method, e.g. `GET` or `POST`.
+    method: string,
+    query: list<query-pair>,
+    headers: list<header-pair>,
+    body: option<list<u8>>,
+    /// Maximum response body bytes the guest wants buffered.
+    max-response-bytes: u32,
+  }
+
+  record network-response {
+    /// Exact HTTP status code from the origin server.
+    status: u16,
+    /// Every response header, one entry per value. A name that repeats,
+    /// such as `set-cookie`, appears once per value. Names are lowercase;
+    /// values that are not valid UTF-8 are decoded lossily.
+    headers: list<header-pair>,
+    /// Exact leading response bytes (never trimmed or recoded).
+    body: list<u8>,
+    /// True when the origin sent more than `max-response-bytes`.
+    truncated: bool,
+  }
+
+  /// Performs one host-mediated HTTP request.
+  request: func(request: network-request) -> result<network-response, string>;
+
+  /// Performs one request under the public-web policy, for destinations the
+  /// component did not choose itself (a URL from the agent or a user). The
+  /// host requires HTTPS without URL credentials, refuses `localhost` and
+  /// literal private or reserved addresses, checks every resolved address at
+  /// connection time (so DNS cannot point it at the local network), and uses
+  /// no proxy. Redirects are not followed: a component that follows one
+  /// calls this again for the new URL, which is checked the same way.
+  request-public: func(request: network-request) -> result<network-response, string>;
+
+
+}
+
+/// Deadline- and cancellation-bounded TCP to local application bridges.
+/// Up to 8 open connections, 8 MiB sent+received per connection, 32 MiB
+/// across an invocation, and 256 KiB per read. Remaining streams are closed
+/// on invocation end, including traps; send/read failures close the stream.
+/// This is an operational capability, not a security sandbox: components
+/// already have native command execution and filesystem access.
+interface sockets {
+  /// All TCP bridges use IPv4 loopback 127.0.0.1, without DNS or proxying.
+  /// Connection refusal is a typed, expected outcome (not a string match).
+  variant connect-error {
+    refused,
+    invalid-port,
+    limit-reached,
+    failed(string),
+  }
+
+  /// Owning a connection keeps its stream live. Dropping this resource closes
+  /// the stream, including normal Rust guest drop; the host also closes every
+  /// remaining stream on invocation completion, cancellation or trap.
+  resource connection {
+    /// Sends all bytes or fails; there is no partial-success byte count.
+    send: func(bytes: list<u8>) -> result<_, string>;
+    /// Receive up to max-bytes (also bounded by the host read cap). Empty = EOF.
+    recv: func(max-bytes: u32) -> result<list<u8>, string>;
+  }
+
+  connect: func(port: u16) -> result<connection, connect-error>;
+  /// Connect within timeout-ms, never beyond the invocation deadline.
+  connect-with-timeout: func(port: u16, timeout-ms: u32) -> result<connection, connect-error>;
+}
+
+/// The exported entry point every WASM Plugin implements.
+interface action {
+  /// Where an attachment's content comes from.
+  variant attachment-source {
+    /// A file in a visible root or in this invocation's staging directory.
+    path(string),
+    /// Content the component already holds in memory.
+    bytes(list<u8>),
+  }
+
+  record attachment {
+    source: attachment-source,
+    mime-type: string,
+  }
+
+  record action-output {
+    /// Tool-specific JSON object that becomes Squire `structuredContent`,
+    /// returned to the caller exactly as produced.
+    structured-json: string,
+    /// Files that are part of the tool result.
+    attachments: list<attachment>,
+  }
+
+  /// A stable category plus a model-visible message.
+  variant action-error {
+    action-failed(string),
+    invalid-arguments(string),
+  }
+
+  invoke: func(action-id: string, arguments-json: string) -> result<action-output, action-error>;
+}
+
+/// What a running action is doing, for the person and agent waiting on it.
+///
+/// When an action outlasts the foreground wait and becomes a background job,
+/// Squire includes the latest status in the promotion notice and in job
+/// checks, so the agent can say why it is still running (for example "waiting
+/// for you to sign in in the Chrome window") and what the person can do.
+interface status {
+  /// Replaces the action's current status with one line of plain text (at
+  /// most 500 bytes are kept). An empty message clears it.
+  report: func(message: string);
+}
+
+/// Host-managed persistent browser capability. The host derives profile
+/// ownership from the invoking Plugin id; callers never choose an owner.
+interface browser {
+  variant attachment-source {
+    path(string),
+    bytes(list<u8>),
+  }
+
+  record attachment {
+    source: attachment-source,
+    mime-type: string,
+  }
+
+  record action-output {
+    structured-json: string,
+    attachments: list<attachment>,
+  }
+
+  variant action-error {
+    action-failed(string),
+    invalid-arguments(string),
+  }
+
+  /// `profile` is none only for profile-independent actions such as
+  /// `list_profiles`. Profile is deliberately separate from `args-json` so
+  /// there is one ownership-checked source of truth.
+  invoke: func(action: string, profile: option<string>, args-json: string) -> result<action-output, action-error>;
+}
+
+world plugin {
+  import secrets;
+  import commands;
+  import processes;
+  import locks;
+  import env;
+  import network;
+  import sockets;
+  import browser;
+  import status;
+  export action;
+}

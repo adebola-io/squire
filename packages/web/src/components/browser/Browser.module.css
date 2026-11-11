@@ -1,0 +1,707 @@
+/* Browser chrome follows the Doop desktop and mobile layouts. Tokens live in squire-ui. */
+.chatResource {
+  display: flex;
+  align-items: center;
+  gap: var(--squire-space-1);
+}
+
+.threadResource {
+  display: flex;
+  align-items: center;
+  flex: none;
+}
+.threadResource .resourcePill {
+  block-size: var(--squire-space-4);
+  min-block-size: var(--squire-space-4);
+  padding-inline: var(--squire-space-1);
+  font: var(--text-small);
+}
+.threadLiveDot {
+  inline-size: calc(var(--squire-space-1) - var(--squire-space-quarter));
+  block-size: calc(var(--squire-space-1) - var(--squire-space-quarter));
+  border-radius: var(--squire-round-full);
+  background: var(--success);
+  flex: none;
+}
+.threadTabCount { white-space: nowrap; color: var(--shallow); }
+@container (max-width: 34rem) {
+  .threadResource .resourceLabel,
+  .threadResource .threadTabCount { display: none; }
+  .threadResource .resourcePill {
+    gap: var(--squire-space-half);
+    padding-inline: var(--squire-space-half);
+  }
+}
+
+.resourcePill, .viewLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--squire-space-1);
+  min-block-size: var(--squire-space-4);
+  block-size: var(--squire-space-4);
+  font: var(--text-small);
+}
+.resourcePill.resourcePill {
+  padding-block: 0;
+  padding-inline: var(--squire-space-1);
+  background: var(--foreground);
+  color: var(--base);
+  border-color: var(--line-highlight);
+}
+.resourcePill:hover, .resourcePill:focus-visible {
+  background: color-mix(in srgb, var(--foreground) 80%, var(--base) 20%);
+  border-color: var(--shallow);
+}
+.resourceLabel {
+  color: transparent;
+  background-image: linear-gradient(
+    90deg,
+    var(--base) 0%,
+    var(--base) 35%,
+    color-mix(in srgb, var(--base) 40%, var(--background)) 50%,
+    var(--base) 65%,
+    var(--base) 100%
+  );
+  background-size: 250% 100%;
+  background-clip: text;
+  animation: browser-text-shimmer var(--chat-shimmer-duration) linear infinite;
+}
+
+@keyframes browser-text-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: 0% 0; }
+}
+
+.resourceIcon {
+  flex: none;
+  inline-size: calc(var(--squire-space-2) + var(--squire-space-quarter));
+  block-size: calc(var(--squire-space-2) + var(--squire-space-quarter));
+  color: var(--shallow);
+}
+.resourceFavicons {
+  display: flex;
+  align-items: center;
+  padding-inline-start: var(--squire-space-half);
+}
+.resourceFavicon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  inline-size: var(--squire-space-3);
+  block-size: var(--squire-space-3);
+  border: var(--squire-browser-rule-width) solid var(--line-highlight);
+  border-radius: var(--squire-round-full);
+  background: var(--foreground);
+  overflow: hidden;
+}
+.resourceFavicon + .resourceFavicon {
+  margin-inline-start: calc(-1 * var(--squire-space-half));
+}
+.resourceFavicon .favicon, .resourceFavicon .faviconFallback {
+  inline-size: calc(var(--squire-space-2) - var(--squire-space-half));
+  block-size: calc(var(--squire-space-2) - var(--squire-space-half));
+}
+.resourceExtra { color: var(--shallow); }
+.viewLink { color: var(--shallow); }
+
+/* Use the existing dialog for native modal semantics and focus restoration. */
+.dialog[data-size="larger"] {
+  /* Fit the remote viewport within BOTH screen constraints before sizing
+     the chrome. Independent width/height caps letterbox the browser surface. */
+  --browser-frame-border: calc(2 * var(--squire-browser-rule-width));
+  --browser-chrome-height: calc(var(--squire-browser-tabs-height) + var(--squire-browser-toolbar-height) + var(--browser-frame-border));
+  --browser-fit-width: min(
+    var(--browser-content-width, var(--squire-browser-width)),
+    calc(100dvw - var(--squire-space-4) - var(--browser-frame-border)),
+    calc((100dvh - var(--squire-space-4) - var(--browser-chrome-height)) * var(--browser-content-aspect, 1.573))
+  );
+  inline-size: calc(var(--browser-fit-width) + var(--browser-frame-border));
+  block-size: calc(var(--browser-fit-width) * var(--browser-content-inverse-aspect, 0.636) + var(--browser-chrome-height));
+  max-inline-size: none;
+  min-inline-size: 0;
+  padding: 0;
+  overflow: hidden;
+  border: var(--squire-browser-rule-width) solid var(--line-highlight);
+  border-radius: var(--squire-round-lg);
+  background: var(--background);
+  color: var(--base);
+  box-shadow: 0 var(--squire-space-3) var(--squire-space-9)
+    color-mix(in srgb, var(--background) 80%, transparent);
+}
+.dialog::backdrop {
+  background: var(--background);
+  opacity: 0.92;
+}
+.dialog[data-size="larger"] > div {
+  block-size: 100%;
+  min-block-size: 0;
+}
+.viewerLoading {
+  display: grid;
+  place-items: center;
+  block-size: 100%;
+  min-block-size: 0;
+  padding: var(--squire-space-3);
+  color: var(--shallow);
+  text-align: center;
+}
+.viewerLoading button { margin-block-start: var(--squire-space-2); }
+.viewer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: hidden;
+}
+
+/* Desktop browser tab strip: tabs scroll separately from the fixed collapse action. */
+.tabs {
+  display: flex;
+  flex: 0 0 var(--squire-browser-tabs-height);
+  align-items: stretch;
+  min-inline-size: 0;
+  gap: var(--squire-space-quarter);
+  padding-inline: var(--squire-space-1);
+  overflow: hidden;
+  background: color-mix(in srgb, var(--background) 75%, var(--foreground));
+  border-block-end: var(--squire-browser-rule-width) solid var(--fainter-stroke);
+}
+.tabScroller {
+  display: flex;
+  flex: 1 1 0;
+  align-items: end;
+  min-inline-size: 0;
+  gap: var(--squire-space-quarter);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+.tabScroller::-webkit-scrollbar { display: none; }
+.tab {
+  position: relative;
+  display: flex;
+  flex: 0 1 var(--squire-browser-tab-max-width);
+  align-items: center;
+  min-inline-size: var(--squire-browser-tab-min-width);
+  max-inline-size: var(--squire-browser-tab-max-width);
+  block-size: var(--squire-browser-tab-height);
+  border-start-start-radius: var(--squire-round-md);
+  border-start-end-radius: var(--squire-round-md);
+  color: var(--shallow);
+  transition: background var(--squire-duration-fast) var(--squire-easing-standard);
+}
+.tab:not([data-selected]):not(:last-child)::after {
+  content: "";
+  position: absolute;
+  inset-block: var(--squire-space-1) var(--squire-space-half);
+  inset-inline-end: 0;
+  inline-size: var(--squire-browser-rule-width);
+  background: var(--line-highlight);
+  pointer-events: none;
+}
+.tab:not([data-selected]):hover::after,
+.tab:not([data-selected]):focus-within::after { display: none; }
+.tab[data-selected] {
+  background: color-mix(in srgb, var(--foreground) 75%, var(--line-highlight));
+  color: var(--base);
+  box-shadow: inset 0 var(--squire-browser-rule-width) var(--line-highlight);
+}
+.tab:not([data-selected]):hover, .tab:not([data-selected]):focus-within {
+  background: var(--hover-state-lighter);
+  color: var(--base);
+}
+.tabSelect:hover, .tabSelect:focus-visible { color: var(--base); }
+.tabRemove:hover, .tabRemove:focus-visible {
+  background: var(--hover-state);
+  border-radius: var(--squire-round-sm);
+  color: var(--base);
+}
+.tabSelect {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  gap: var(--squire-space-1);
+  min-inline-size: 0;
+  min-block-size: 0;
+  block-size: 100%;
+  padding-inline: var(--squire-space-1);
+  font: var(--text-small);
+  text-align: start;
+  border-radius: inherit;
+}
+.favicon, .faviconFallback {
+  flex: none;
+  inline-size: var(--squire-space-2);
+  block-size: var(--squire-space-2);
+  object-fit: contain;
+}
+.tabSelect span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.tabRemove {
+  display: grid;
+  place-items: center;
+  flex: 0 0 var(--squire-space-3);
+  min-inline-size: 0;
+  min-block-size: 0;
+  block-size: var(--squire-browser-tab-height);
+  padding: 0;
+  opacity: 0;
+}
+.tabRemove svg {
+  inline-size: var(--squire-space-2);
+  block-size: var(--squire-space-2);
+}
+.tab[data-selected] .tabRemove,
+.tab:hover .tabRemove,
+.tab:focus-within .tabRemove { opacity: 1; }
+.tabActions {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: var(--squire-space-half);
+  min-inline-size: 0;
+}
+.tabCollapse, .mobileTabCount {
+  display: grid;
+  place-items: center;
+  flex: none;
+  min-inline-size: var(--squire-space-4);
+  min-block-size: var(--squire-space-4);
+  block-size: var(--squire-space-4);
+  padding: 0;
+  border-radius: var(--squire-round-sm);
+}
+.tabCollapse:hover, .tabCollapse:focus-visible,
+.mobileTabCount:hover, .mobileTabCount:focus-visible {
+  color: var(--base);
+  background: var(--hover-state-lighter);
+}
+.tabCollapse svg {
+  inline-size: calc(var(--squire-space-2) + var(--squire-space-quarter));
+  block-size: calc(var(--squire-space-2) + var(--squire-space-quarter));
+}
+.mobileTabCount { display: none; }
+
+/* Navigation and the read-only location. The shared viewport picker is on the right. */
+.toolbar {
+  display: flex;
+  align-items: center;
+  flex: 0 0 var(--squire-browser-toolbar-height);
+  min-inline-size: 0;
+  gap: var(--squire-space-1);
+  padding-inline: var(--squire-space-1);
+  background: color-mix(in srgb, var(--foreground) 75%, var(--line-highlight));
+  border-block-end: var(--squire-browser-rule-width) solid var(--fainter-stroke);
+  color: var(--shallow);
+}
+.iconButton {
+  display: grid;
+  place-items: center;
+  flex: none;
+  min-inline-size: var(--squire-space-3);
+  min-block-size: 0;
+  block-size: var(--squire-space-4);
+  padding: 0;
+  border-radius: var(--squire-round-sm);
+}
+.iconButton:hover, .iconButton:focus-visible {
+  background: var(--hover-state-lighter);
+  color: var(--base);
+}
+.iconButton svg {
+  inline-size: var(--squire-space-2);
+  block-size: var(--squire-space-2);
+}
+.address {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  gap: var(--squire-space-half);
+  min-inline-size: 0;
+  block-size: var(--squire-browser-url-height);
+  padding-inline: var(--squire-space-1);
+  border: var(--squire-browser-rule-width) solid var(--line-highlight);
+  border-radius: var(--squire-round-sm);
+  background: color-mix(in srgb, var(--background) 75%, transparent);
+  color: var(--base);
+  font: var(--text-small);
+}
+.address svg {
+  flex: none;
+  inline-size: calc(var(--squire-space-2) - var(--squire-space-half));
+  block-size: calc(var(--squire-space-2) - var(--squire-space-half));
+}
+.address span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.resizeTrigger.resizeTrigger {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: var(--squire-space-half);
+  inline-size: var(--squire-browser-size-control-width);
+  min-block-size: var(--squire-browser-url-height);
+  block-size: var(--squire-browser-url-height);
+  padding-inline: var(--squire-space-1);
+  border: var(--squire-browser-rule-width) solid var(--line-highlight);
+  border-radius: var(--squire-round-sm);
+  background: var(--background);
+  color: var(--base);
+  font: var(--text-small);
+}
+.resizeTrigger:hover, .resizeTrigger:focus-visible, .resizeTrigger[aria-expanded="true"] {
+  border-color: var(--shallow);
+  background: var(--hover-state-lighter);
+}
+.resizeTrigger svg {
+  flex: none;
+  inline-size: var(--squire-space-2);
+  block-size: var(--squire-space-2);
+}
+.viewportValue {
+  flex: 1 1 0;
+  min-inline-size: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+.resizeTrigger .viewportCaret {
+  inline-size: var(--squire-space-1);
+  block-size: var(--squire-space-1);
+  transform: rotate(90deg);
+  color: var(--shallow);
+}
+.viewportMenu {
+  min-inline-size: calc(var(--squire-space-17) * 1.5);
+  padding: var(--squire-space-half);
+  background: var(--foreground);
+  color: var(--base);
+  border: var(--squire-browser-rule-width) solid var(--line-highlight);
+  border-radius: var(--squire-round-md);
+  box-shadow: 0 var(--squire-space-2) var(--squire-space-5) var(--background-dim);
+}
+.viewportMenuLabel {
+  display: block;
+  padding: var(--squire-space-1);
+  font: var(--text-small);
+  color: var(--shallow);
+}
+.viewportMenuItem {
+  min-block-size: var(--squire-space-4);
+  padding: var(--squire-space-1);
+  border-radius: var(--squire-round-sm);
+  color: var(--base);
+  font: var(--text-small);
+  text-align: start;
+  white-space: nowrap;
+}
+.viewportMenuItem:hover,
+.viewportMenuItem:focus-visible,
+.viewportMenuItem[data-highlighted] {
+  background: var(--hover-state-lighter);
+  color: var(--base);
+}
+.viewportNotice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 0 0 var(--squire-browser-viewport-height);
+  gap: var(--squire-space-1);
+  min-inline-size: 0;
+  padding-inline: var(--squire-space-2);
+  background: var(--foreground);
+  border-block-end: var(--squire-browser-rule-width) solid var(--fainter-stroke);
+  color: var(--shallow);
+  font: var(--text-small);
+  white-space: nowrap;
+}
+.viewportNotice span {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.viewportNotice strong { color: var(--base); font-weight: 500; }
+.viewportNotice button:hover, .viewportNotice button:focus-visible {
+  color: var(--base);
+  background: var(--hover-state-lighter);
+}
+.viewportNotice button {
+  flex: none;
+  min-block-size: 0;
+  block-size: 100%;
+  padding: 0;
+  color: var(--base);
+  font: var(--text-small);
+  text-decoration: underline;
+  text-underline-offset: var(--squire-space-quarter);
+}
+
+/* The JPEG is a real browser surface, not a styled approximation of a webpage. */
+.stage {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: safe center;
+  flex: 1 1 0;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow: auto;
+  background: var(--background);
+  overscroll-behavior: contain;
+  touch-action: none;
+}
+.stage[data-zoom] {
+  justify-content: flex-start;
+  touch-action: pan-x pan-y;
+}
+/* Touch action is the intersection with ancestors up to the scroller, so the
+   canvas must allow panning too or one-finger panning a zoomed view does nothing. */
+.stage[data-zoom] .frame {
+  touch-action: pan-x pan-y;
+}
+.surface { position: relative; flex: 0 0 auto; margin-inline: auto; }
+.frame {
+  display: block;
+  max-inline-size: none;
+  user-select: none;
+  touch-action: none;
+}
+.frame[data-ready="false"] { visibility: hidden; }
+.statusOverlay {
+  position: absolute;
+  z-index: var(--squire-z-overlay);
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--squire-space-3);
+  background: color-mix(in srgb, var(--background) 74%, transparent);
+  color: var(--base);
+  font: var(--text-small);
+  text-align: center;
+  pointer-events: none;
+}
+.statusPill {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: var(--squire-space-1);
+  inline-size: max-content;
+  max-inline-size: 100%;
+  min-block-size: var(--squire-space-5);
+  padding: calc(var(--squire-space-1) + var(--squire-space-quarter)) var(--squire-space-2);
+  border: var(--squire-browser-rule-width) solid var(--line-highlight);
+  border-radius: var(--squire-round-pill);
+  background: var(--foreground);
+  box-shadow: 0 var(--squire-space-1) var(--squire-space-3) var(--background-dim);
+  font: var(--text-small);
+  line-height: 1.4;
+}
+.statusSpinner {
+  flex: none;
+  inline-size: calc(var(--squire-space-2) - var(--squire-space-quarter));
+  block-size: calc(var(--squire-space-2) - var(--squire-space-quarter));
+  border: var(--squire-browser-rule-width) solid var(--line-highlight);
+  border-block-start-color: var(--base);
+  border-radius: var(--squire-round-full);
+  animation: browser-status-spin var(--squire-duration-spin) linear infinite;
+}
+.statusMessage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: var(--squire-space-half);
+  min-inline-size: 0;
+}
+.statusMessage small { color: var(--shallow); font: var(--text-small); }
+.offlineCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--squire-space-2);
+  inline-size: min(100%, calc(var(--squire-space-17) * 3));
+  padding: var(--squire-space-3);
+  border: var(--squire-browser-rule-width) solid var(--line-highlight);
+  border-radius: var(--squire-round-lg);
+  background: var(--foreground);
+  text-align: start;
+  pointer-events: auto;
+}
+.offlineCard h2 { font: var(--text-subheading); }
+.offlineCard p { color: var(--shallow); font: var(--text-small); }
+.offlineIcon {
+  display: grid;
+  place-items: center;
+  inline-size: var(--squire-space-4);
+  block-size: var(--squire-space-4);
+  border: var(--squire-browser-rule-width) solid var(--line-highlight);
+  border-radius: var(--squire-round-sm);
+}
+.offlineIcon svg { inline-size: var(--squire-space-2); block-size: var(--squire-space-2); }
+.offlineActions { display: flex; flex-wrap: wrap; gap: var(--squire-space-1); }
+.offlineActions button { min-block-size: var(--squire-space-4); }
+.offlineRetry { background: var(--base); color: var(--background); }
+.offlineRetry:hover, .offlineRetry:focus-visible { background: var(--hover-state); color: var(--base); }
+@keyframes browser-status-spin { to { transform: rotate(1turn); } }
+.footer {
+  position: absolute;
+  z-index: var(--squire-z-overlay);
+  inset-inline: var(--squire-space-2);
+  inset-block-end: var(--squire-space-2);
+  padding: var(--squire-space-1) var(--squire-space-2);
+  border: var(--squire-browser-rule-width) solid var(--line-highlight);
+  border-radius: var(--squire-round-md);
+  background: var(--foreground);
+  color: var(--base);
+  font: var(--text-small);
+}
+
+/* Overview is on top of the frame and does not start other screencasts. */
+.overview {
+  position: absolute;
+  z-index: var(--squire-z-overlay);
+  inset: 0;
+  padding: var(--squire-space-2);
+  background: var(--foreground);
+  overflow-y: auto;
+}
+.overview h2 { font: var(--text-body); padding-block-end: var(--squire-space-2); }
+.overviewGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--squire-space-17), 1fr));
+  gap: var(--squire-space-2);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.overviewCard {
+  border: var(--squire-browser-rule-width) solid var(--line-highlight);
+  border-radius: var(--squire-round-md);
+  overflow: hidden;
+}
+.overviewCard > button:first-child {
+  display: flex;
+  inline-size: 100%;
+  flex-direction: column;
+  text-align: start;
+}
+.overviewCard img {
+  inline-size: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  background: var(--background);
+}
+.overviewCard span {
+  inline-size: 100%;
+  padding: var(--squire-space-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.overviewRemove { padding: var(--squire-space-1); color: var(--shallow); font: var(--text-small); }
+.mobileKeyboard {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: var(--squire-space-quarter);
+  block-size: var(--squire-space-quarter);
+  opacity: 0;
+}
+
+/* Phone layout matches Doop's 33px tab row, 32px location bar and 30px notice. */
+@media (max-width: 40rem) {
+  .dialog[data-size="larger"] {
+    inline-size: 100dvw;
+    block-size: 100dvh;
+    max-inline-size: none;
+    max-block-size: none;
+    padding-block-start: env(safe-area-inset-top, 0px);
+    padding-block-end: env(safe-area-inset-bottom, 0px);
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .tabs {
+    flex-basis: var(--squire-browser-mobile-tabs-height);
+    padding-inline: var(--squire-space-1);
+    gap: var(--squire-space-half);
+  }
+  .tabScroller { gap: var(--squire-space-half); }
+  .tab {
+    flex: 0 0 var(--squire-browser-mobile-tab-width);
+    min-inline-size: var(--squire-browser-mobile-tab-width);
+    max-inline-size: var(--squire-browser-mobile-tab-width);
+    block-size: var(--squire-browser-mobile-tab-height);
+  }
+  .tab[data-selected] {
+    flex-basis: var(--squire-browser-mobile-active-width);
+    min-inline-size: var(--squire-browser-mobile-active-width);
+    max-inline-size: var(--squire-browser-mobile-active-width);
+  }
+  .tabSelect { justify-content: center; padding-inline: 0; gap: var(--squire-space-half); }
+  .tab[data-selected] .tabSelect { justify-content: flex-start; padding-inline: var(--squire-space-1); }
+  .tab:not([data-selected]) .tabSelect span { display: none; }
+  .tabRemove { display: none; }
+  .mobileTabCount {
+    display: grid;
+    min-inline-size: var(--squire-space-4);
+    min-block-size: var(--squire-space-4);
+    block-size: var(--squire-space-4);
+    border: var(--squire-browser-rule-width) solid var(--line-highlight);
+    border-radius: var(--squire-round-sm);
+    font: var(--text-small);
+  }
+  .tabCollapse {
+    min-inline-size: var(--squire-space-4);
+    min-block-size: var(--squire-space-4);
+    block-size: var(--squire-space-4);
+  }
+  .toolbar {
+    flex-basis: var(--squire-browser-mobile-toolbar-height);
+    gap: var(--squire-space-1);
+    padding-inline: var(--squire-space-2);
+  }
+  .iconButton {
+    min-inline-size: calc(var(--squire-space-3) - var(--squire-space-quarter));
+    block-size: var(--squire-browser-mobile-toolbar-height);
+  }
+  .address {
+    block-size: var(--squire-browser-mobile-url-height);
+    padding-inline: var(--squire-space-1);
+  }
+  .resizeTrigger { display: none; }
+  .viewportNotice {
+    gap: var(--squire-space-1);
+    padding-inline: var(--squire-space-2);
+  }
+  .statusPill:has(.statusMessage) {
+    flex-direction: column;
+    border-radius: var(--squire-round-md);
+    text-align: center;
+  }
+  .statusMessage { flex-direction: column; align-items: center; }
+  .footer { inset-inline: var(--squire-space-1); inset-block-end: var(--squire-space-1); }
+  .overviewGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--squire-space-1); }
+}
+@media (min-width: 40.001rem) {
+  .viewportNotice { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tab, .tabRemove { transition: none; }
+  .statusSpinner { animation: none; }
+  .resourceLabel {
+    color: var(--base);
+    background-image: none;
+    animation: none;
+  }
+}

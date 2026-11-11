@@ -1,0 +1,27 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "env": {
+    "browser": true
+  },
+  "ignorePatterns": ["dist/**", "node_modules/**", "src-tauri/target/**"],
+  "jsPlugins": [{ "name": "retend", "specifier": "retend-oxlint-plugin" }],
+  "rules": {
+    "retend/component-statement-order": "error",
+    "retend/max-component-lines": "error",
+    "retend/max-jsx-components-per-file": "error",
+    "retend/no-classname": "error",
+    "retend/no-inline-object-type": "error",
+    "retend/no-module-cell": "error",
+    "retend/no-module-jsx": "error",
+    "retend/props-destructure-first": "error",
+    "retend/no-templated-class": "error",
+    "retend/no-get-in-derived-async": "error",
+    "retend/no-get-in-jsx": "error",
+    "retend/no-derived-in-jsx": "error",
+    "retend/no-jsx-control-flow": "error",
+    "retend/no-jsx-map": "error",
+    "retend/no-listen-in-onsetup": "error",
+    "retend/no-react-imports": "error",
+    "retend/prefer-router-navigation": "error"
+  }
+}

@@ -1,0 +1,99 @@
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 0;
+  min-block-size: var(--squire-space-8);
+  padding: var(--squire-space-2);
+  color: var(--shallow);
+  font: var(--text-small);
+}
+
+/*
+ * Fill the route's flex cell or grow within a panel without percentage heights on auto-sized
+ * parents.
+ */
+.loading[data-screen],
+.loading[data-region] {
+  flex: 1 1 0;
+  align-self: stretch;
+  inline-size: 100%;
+
+  & .waiting {
+    flex-direction: column;
+    gap: var(--squire-space-2);
+    font: var(--text-body);
+    color: var(--base);
+  }
+
+  & .spinner {
+    inline-size: var(--squire-space-4);
+    block-size: var(--squire-space-4);
+  }
+
+  & .failure {
+    font: var(--text-body);
+  }
+}
+
+.loading[data-screen] {
+  min-block-size: 0;
+}
+
+.loading[data-region] {
+  min-block-size: min(var(--squire-space-17), 35dvh);
+}
+
+.waiting {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--squire-space-1);
+  animation: loading-appear var(--squire-duration-reveal) ease-in var(--squire-delay-loading)
+    backwards;
+}
+
+.spinner {
+  inline-size: var(--squire-space-2);
+  block-size: var(--squire-space-2);
+  animation: loading-spin var(--squire-duration-spin) linear infinite;
+}
+
+.failure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--squire-space-2);
+  inline-size: 100%;
+  max-inline-size: 52ch;
+  text-align: center;
+  color: var(--error);
+
+  & p {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
+@keyframes loading-appear {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes loading-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+  .waiting {
+    animation: none;
+  }
+}

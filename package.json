@@ -1,0 +1,46 @@
+{
+  "name": "squire",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Local control panel for MCP access.",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "pnpm run build-ui && concurrently -k -s first -n ui,server,web \"pnpm --filter squire-ui run watch\" \"cargo run --manifest-path server/Cargo.toml -- --no-browser\" \"wait-on tcp:127.0.0.1:4296 && corepack pnpm --filter squire-web run dev\"",
+    "dev:onboarding": "sh scripts/dev-onboarding.sh",
+    "dev:server": "cargo run --manifest-path server/Cargo.toml -- --no-browser",
+    "dev:web": "pnpm run build-ui && concurrently -k -s first -n ui,web \"pnpm --filter squire-ui run watch\" \"corepack pnpm --filter squire-web run dev\"",
+    "build": "corepack pnpm run build-web && cargo build --manifest-path server/Cargo.toml",
+    "build:release": "corepack pnpm run build-web && cargo build --release --manifest-path server/Cargo.toml",
+    "build-web": "pnpm run build-ui && corepack pnpm --filter squire-web run build",
+    "start": "corepack pnpm run build-web && cargo run --manifest-path server/Cargo.toml",
+    "start:release": "cargo run --release --manifest-path server/Cargo.toml",
+    "package:release": "sh scripts/package-release.sh",
+    "package:codex-plugin": "sh scripts/package-codex-plugin.sh",
+    "release": "corepack pnpm run build:release && sh scripts/package-release.sh",
+    "build-ui": "pnpm --filter squire-ui run build",
+    "typecheck": "pnpm run build-ui && corepack pnpm -r --if-present run typecheck",
+    "typecheck-web": "pnpm run build-ui && corepack pnpm --filter squire-web run typecheck",
+    "typecheck-ui": "corepack pnpm --filter squire-ui run typecheck",
+    "lint": "corepack pnpm -r --if-present run lint",
+    "lint-web": "corepack pnpm --filter squire-web run lint",
+    "format": "corepack pnpm -r --if-present run format",
+    "format:check": "corepack pnpm -r --if-present run format:check"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.3",
+    "wait-on": "^9.0.10",
+    "wrangler": "^4.114.0"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "innate-ui>retend": "0.0.37",
+        "innate-ui>retend-utils": "0.0.37",
+        "innate-ui>retend-web": "0.0.37"
+      }
+    }
+  },
+  "packageManager": "pnpm@10.6.3"
+}

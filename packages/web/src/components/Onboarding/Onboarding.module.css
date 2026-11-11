@@ -1,0 +1,756 @@
+.welcome,
+.signin {
+  /* The backdrop image's base tone, shown until it is revealed. Matches the account site's
+     `--site-auth-image-base`, so both fade the same image in from the same colour. */
+  --onboarding-image-base: #705050;
+
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  /* `data-color-scheme="dark"` on these elements supplies the dark tokens in either theme. */
+  color: var(--base);
+  background: var(--onboarding-image-base);
+  overflow: hidden;
+}
+/* The sign-in step keeps the welcome page's backdrop in place, at the same framing. */
+.signin::before {
+  content: "";
+  position: absolute;
+  inset: -8%;
+  background: url("../../assets/backdrops-optimized/Pink Sunset.webp") center / cover no-repeat;
+}
+.welcome {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--squire-space-3);
+}
+/* Framed exactly like `.signin::before` (8% overscan, cover, centred), so the image does not move
+   when the sign-in step replaces this page. Revealed as on the account site once decoded: it fades
+   in while settling from a slight zoom. */
+.welcomeBackdrop {
+  position: absolute;
+  inset-block-start: -8%;
+  inset-inline-start: -8%;
+  inline-size: 116%;
+  block-size: 116%;
+  max-inline-size: none;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(1.065);
+  transition:
+    opacity 800ms cubic-bezier(0.2, 0.75, 0.2, 1),
+    transform 800ms cubic-bezier(0.2, 0.75, 0.2, 1);
+}
+.welcomeBackdrop[data-ready] {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .welcomeBackdrop {
+    transform: none;
+    transition: none;
+  }
+}
+.welcomeContent {
+  position: relative;
+  width: min(100%, var(--squire-form-width));
+}
+.mark {
+  width: var(--squire-space-4);
+  height: var(--squire-space-4);
+}
+.welcome h1,
+.sheet h1,
+.dialog h1 {
+  font: 400 1.375rem/1.3 var(--font-family-heading);
+  white-space: normal;
+  margin: 0 0 var(--squire-space-3);
+}
+.welcome p,
+.sheet p,
+.dialog p {
+  color: var(--squire-text-muted);
+  font-size: 1rem;
+  line-height: 1.5;
+  white-space: normal;
+  margin: 0 0 var(--squire-space-3);
+}
+.welcomeContent > button {
+  width: 100%;
+  gap: var(--squire-space-1);
+}
+.welcomeContent > button svg {
+  width: var(--squire-space-2);
+  height: var(--squire-space-2);
+}
+.sheet {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: min(100%, 28rem);
+  background: var(--background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--squire-space-5);
+  overflow-y: auto;
+}
+.sheetContent {
+  width: 100%;
+  max-width: 21rem;
+}
+.sheetContent > button {
+  width: 100%;
+  margin-bottom: var(--squire-space-2);
+}
+.sheet .note {
+  border-top: 1px solid var(--fainter-stroke);
+  padding-top: var(--squire-space-3);
+  margin-top: var(--squire-space-1);
+  font-size: 0.75rem;
+}
+
+/* Approve this computer: the code comes first, the browser second. */
+.sheet .waiting {
+  display: flex;
+  align-items: center;
+  gap: var(--squire-space-1);
+  color: var(--base);
+  font-size: 0.875rem;
+  margin-bottom: var(--squire-space-2);
+}
+.waitingDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--pending);
+  flex: none;
+}
+.sheet .codeLabel {
+  font-size: 0.75rem;
+  margin: 0 0 var(--squire-space-half);
+}
+.codeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--squire-space-2);
+  padding-bottom: var(--squire-space-2);
+  border-bottom: 1px solid var(--line-highlight);
+  margin-bottom: var(--squire-space-3);
+}
+.code {
+  font:
+    500 1.5rem/1.2 ui-monospace,
+    "SF Mono",
+    Menlo,
+    Consolas,
+    monospace;
+  letter-spacing: 0.08em;
+  color: var(--base);
+}
+.copyCode {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--squire-target-min);
+  height: var(--squire-target-min);
+  flex: none;
+  border: 1px solid var(--line-highlight);
+  border-radius: var(--squire-round-sm);
+  background: transparent;
+  color: var(--base);
+  cursor: pointer;
+}
+.copyCode svg {
+  width: var(--squire-space-2);
+  height: var(--squire-space-2);
+}
+.copyCode:hover {
+  background: var(--hover-state-lighter);
+}
+.copyCode:focus-visible {
+  outline: var(--squire-focus-width) solid var(--accent);
+}
+.approvalActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--squire-space-1);
+  margin-bottom: var(--squire-space-3);
+}
+/* Match the chat's outbound-link arrow; opening the site switches to inline progress. */
+.openApproval {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--squire-space-1);
+  min-block-size: var(--squire-space-6);
+  padding: var(--squire-space-1) var(--squire-space-3);
+  border: var(--squire-surface-stroke) solid var(--line-highlight);
+  border-radius: var(--squire-round-md);
+  color: var(--base);
+  font: inherit;
+  text-decoration: none;
+}
+.openApproval:hover:not([aria-disabled="true"]) {
+  background: var(--hover-state-lighter);
+}
+.openApproval:focus-visible {
+  outline: var(--squire-focus-width) solid var(--accent);
+  outline-offset: var(--squire-space-quarter);
+}
+.openApproval:not([aria-busy="true"])::after {
+  content: "";
+  position: static;
+  inset: auto;
+  display: inline-block;
+  flex: none;
+  inline-size: 0.7em;
+  block-size: 0.7em;
+  background-color: currentColor;
+  opacity: 0.55;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6'/%3E%3Cpath d='m10 14 11-11'/%3E%3Cpath d='M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+.openApproval[aria-disabled="true"] {
+  cursor: progress;
+}
+.approvalSpinner {
+  inline-size: 1em;
+  block-size: 1em;
+  flex: none;
+  animation: approval-spin 0.8s linear infinite;
+}
+@keyframes approval-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .approvalSpinner {
+    animation-duration: 2.4s;
+  }
+}
+.sheet .approvalProgress {
+  color: var(--base);
+  font-size: 0.875rem;
+  margin-bottom: var(--squire-space-2);
+}
+.sheet .fine {
+  font-size: 0.75rem;
+  margin-bottom: var(--squire-space-1);
+}
+
+/* Setup dialogs. */
+.dialog {
+  width: min(30rem, calc(100vw - var(--squire-space-3)));
+  max-height: calc(100dvh - var(--squire-space-3));
+}
+.frame {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: calc(100dvh - var(--squire-space-6) * 2);
+}
+/* A fixed height for list steps, so the dialog never grows with its list. */
+.fill {
+  height: min(40rem, calc(100dvh - var(--squire-space-6) * 2));
+}
+.frame > * {
+  flex: none;
+}
+.frame > .scroller {
+  flex: 1 1 0;
+  min-height: 0;
+  height: auto;
+  max-height: none;
+  overflow-y: auto;
+}
+/* When the installed pills use most of a short screen, keep the suggestions
+   usable and let the dialog itself scroll rather than clipping the pills. */
+:global(#onboarding-plugins) .frame {
+  overflow-y: auto;
+}
+:global(#onboarding-plugins) .frame > .scroller {
+  min-height: min(8rem, 20dvh);
+}
+.dialog h1 {
+  font-size: 1.125rem;
+  margin-bottom: var(--squire-space-1);
+}
+.dialog p {
+  font-size: 0.75rem;
+}
+.roots,
+.plugins,
+.providerRows {
+  /* Shared list reset; each list sizes its own rows below. */
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.roots {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 16rem;
+  border-top: 1px solid var(--line-highlight);
+}
+.roots li {
+  display: flex;
+  align-items: center;
+  gap: var(--squire-space-1);
+  min-height: var(--squire-space-6);
+  border-bottom: 1px solid var(--line-highlight);
+}
+.roots svg {
+  width: var(--squire-space-2);
+  height: var(--squire-space-2);
+  flex: none;
+}
+.roots strong {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+.roots span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--faint);
+  font-size: 0.75rem;
+}
+.roots strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.roots span {
+  flex: 1;
+}
+.roots button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--squire-target-min);
+  height: var(--squire-target-min);
+  flex: none;
+  border: 0;
+  background: transparent;
+  color: var(--faint);
+  padding: 0;
+  cursor: pointer;
+}
+.emptyRoots {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--squire-space-1);
+  padding: var(--squire-space-2) 0;
+  border-top: 1px solid var(--line-highlight);
+  border-bottom: 1px solid var(--line-highlight);
+}
+.emptyRoots svg {
+  width: var(--squire-space-2);
+  height: var(--squire-space-2);
+  flex: none;
+  margin-top: var(--squire-space-quarter);
+  color: var(--faint);
+}
+.dialog .emptyRoots p {
+  margin: 0;
+}
+.addFolder {
+  width: 100%;
+  margin-top: var(--squire-space-2);
+  gap: var(--squire-space-1);
+}
+.addFolder svg {
+  width: var(--squire-space-2);
+  height: var(--squire-space-2);
+}
+.retryLink {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: var(--squire-space-quarter);
+  cursor: pointer;
+}
+.retryLink:focus-visible {
+  outline: var(--squire-focus-width) solid var(--accent);
+  outline-offset: var(--squire-space-quarter);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--squire-space-1);
+  margin-top: var(--squire-space-3);
+}
+/* Plugins, sized as in the "06 Plugins" design. */
+.dialog .label {
+  color: var(--faint);
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin: var(--squire-space-3) 0 var(--squire-space-1);
+}
+/* Installed plugins take their natural height; only the marketplace list scrolls. */
+.chipsSlot {
+  flex: none;
+}
+.chips,
+.chipsSkeleton {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 6px;
+}
+.chipsSlot .error {
+  margin: 0;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 var(--squire-space-1);
+  border: 1px solid var(--line-highlight);
+  border-radius: 13px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+/* Each icon has its own reserved space and loading shimmer, independent of chip data. */
+.chipIcon {
+  display: grid;
+  place-items: center;
+  position: relative;
+  inline-size: 14px;
+  block-size: 14px;
+  flex: none;
+  border-radius: var(--squire-round-sm);
+  background: var(--hover-state);
+  animation: plugin-skeleton-pulse 1.5s ease-in-out infinite alternate;
+}
+.chipIcon[data-ready="true"],
+.chipIcon[data-failed="true"] {
+  animation: none;
+  background: transparent;
+}
+.chipIcon img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity var(--squire-duration-fast) ease;
+}
+.chipIcon[data-ready="true"] img {
+  opacity: 1;
+}
+.chipIconFallback {
+  position: absolute;
+  inline-size: 100%;
+  block-size: 100%;
+  color: var(--faint);
+  opacity: 0;
+}
+.chipIcon[data-failed="true"] .chipIconFallback {
+  opacity: 1;
+}
+.pluginSearch {
+  /* The onboarding frame scrolls on short screens. Keep the focus ring inside
+     its scrollport instead of clipping the outline at either side. */
+  width: calc(100% - 2 * var(--squire-space-1));
+  margin-inline: var(--squire-space-1);
+  margin-bottom: var(--squire-space-1);
+}
+
+/* Skeletons occupy the real row geometry, inside the fixed-height scroll region. */
+.skeletonChip,
+.skeletonIcon,
+.skeletonName,
+.skeletonDescription,
+.skeletonAction {
+  display: block;
+  flex: none;
+  border-radius: var(--squire-round-sm);
+  background: var(--hover-state);
+  animation: plugin-skeleton-pulse 1.5s ease-in-out infinite alternate;
+}
+.skeletonChip {
+  width: 5.5rem;
+  height: 26px;
+  border-radius: 13px;
+}
+.skeletonChip:nth-child(2) {
+  width: 4.25rem;
+}
+.skeletonChip:nth-child(3) {
+  width: 6.25rem;
+}
+.skeletonIcon,
+.skeletonAction {
+  width: 20px;
+  height: 20px;
+}
+.skeletonName {
+  width: 40%;
+  height: 12px;
+}
+.skeletonDescription {
+  width: 75%;
+  height: 10px;
+}
+.skeletonAction {
+  position: absolute;
+  right: 0;
+  border-radius: 50%;
+}
+@keyframes plugin-skeleton-pulse {
+  to {
+    opacity: 0.45;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeletonChip,
+  .skeletonIcon,
+  .skeletonName,
+  .skeletonDescription,
+  .skeletonAction,
+  .chipIcon {
+    animation: none;
+  }
+  .chipIcon img {
+    transition: none;
+  }
+}
+/* The install action is absolutely positioned against its row. */
+.plugins li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding-inline-end: var(--squire-space-5);
+}
+.plugins li > img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex: none;
+}
+.plugins li > div {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.plugins li > div > strong {
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.plugins li > div > span {
+  color: var(--faint);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dialog .noMatches {
+  margin: var(--squire-space-2) 0;
+}
+
+/* Providers. */
+.providerRows {
+  border-top: 1px solid var(--line-highlight);
+}
+.providerRows li {
+  border-bottom: 1px solid var(--line-highlight);
+}
+.providerRows button {
+  display: flex;
+  align-items: center;
+  gap: var(--squire-space-2);
+  width: 100%;
+  min-height: var(--squire-space-7, 3.5rem);
+  padding: var(--squire-space-1) 0;
+  border: 0;
+  background: transparent;
+  color: var(--base);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.providerRows button:hover {
+  background: var(--hover-state-lighter);
+}
+.providerRows button:focus-visible {
+  outline: var(--squire-focus-width) solid var(--accent);
+  outline-offset: calc(var(--squire-focus-width) * -1);
+}
+.rowText {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.rowText strong {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+.rowText span {
+  color: var(--faint);
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rowAction {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--squire-space-half);
+  flex: none;
+  color: var(--squire-text-muted);
+  font-size: 0.8125rem;
+}
+.rowAction[data-connected="true"] {
+  color: var(--success);
+}
+.rowAction svg {
+  width: 14px;
+  height: 14px;
+}
+.rowCaret {
+  color: var(--faint);
+}
+.customMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--squire-space-3);
+  height: var(--squire-space-3);
+  flex: none;
+}
+.customMark svg {
+  width: var(--squire-space-3);
+  height: var(--squire-space-3);
+}
+.footnote {
+  display: flex;
+  align-items: center;
+  gap: var(--squire-space-1);
+}
+.dialog .footnote {
+  margin: var(--squire-space-2) 0 0;
+}
+.footnote svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--squire-space-half);
+  align-self: flex-start;
+  margin-bottom: var(--squire-space-2);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--squire-text-muted);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+.backLink svg {
+  width: 12px;
+  height: 12px;
+  rotate: 180deg;
+}
+.backLink:focus-visible {
+  outline: var(--squire-focus-width) solid var(--accent);
+}
+.selectedProvider {
+  display: flex;
+  align-items: center;
+  gap: var(--squire-space-2);
+  padding-bottom: var(--squire-space-2);
+  border-bottom: 1px solid var(--line-highlight);
+}
+.keyForm {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--squire-space-2);
+}
+.fieldLabel {
+  font-size: 0.8125rem;
+  margin-bottom: var(--squire-space-1);
+}
+.keyField {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--line-highlight);
+  border-radius: var(--squire-round-md);
+}
+.keyField:focus-within {
+  outline: var(--squire-focus-width) solid var(--accent);
+}
+.keyField input {
+  flex: 1;
+  min-width: 0;
+  height: var(--squire-target-min);
+  padding: 0 var(--squire-space-2);
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--base);
+  font: inherit;
+  font-size: 0.875rem;
+}
+.keyField button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--squire-target-min);
+  height: var(--squire-target-min);
+  border: 0;
+  background: transparent;
+  color: var(--faint);
+  cursor: pointer;
+}
+.keyField button svg {
+  width: var(--squire-space-2);
+  height: var(--squire-space-2);
+}
+.dialog .hint {
+  margin: var(--squire-space-1) 0 var(--squire-space-half);
+}
+.docLink {
+  align-self: flex-start;
+  color: var(--base);
+  font-size: 0.8125rem;
+}
+
+.error,
+.sheet .error,
+.dialog .error {
+  color: var(--error);
+  white-space: normal;
+}
+.saveError {
+  position: fixed;
+  z-index: 200;
+  bottom: var(--squire-space-2);
+  left: var(--squire-space-2);
+  color: var(--error);
+  background: var(--background);
+  white-space: normal;
+}

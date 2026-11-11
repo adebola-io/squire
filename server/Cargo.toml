@@ -1,0 +1,121 @@
+[package]
+name = "squire-server"
+version = "0.3.0"
+edition = "2021"
+default-run = "squire-server"
+
+# Keep the server's host workspace independent of integration source trees.
+[workspace]
+
+[dependencies]
+anyhow = "1"
+async-trait = "0.1"
+axum = { version = "0.7", features = ["multipart", "ws"] }
+base64 = "0.22"
+chrono = { version = "0.4", features = ["serde"] }
+dom_smoothie = "0.18.2"
+dirs = "7"
+dunce = "1"
+dotenvy = "0.15"
+encoding_rs = "0.8"
+futures-util = "0.3"
+futures = "0.3"
+grep = "0.4"
+git2 = "0.21"
+ignore = "0.4"
+libc = "0.2"
+notify-rust = { version = "4.18", default-features = false }
+reqwest = { version = "0.13", features = ["json", "multipart", "rustls", "stream", "form"], default-features = false }
+wreq = { version = "0.16", default-features = false, features = ["webpki-roots", "tokio-rt", "stream", "gzip", "deflate", "brotli", "zstd"] }
+wreq-util = "0.2"
+rmcp = { version = "3.4", features = ["auth", "client", "transport-child-process", "transport-streamable-http-client-reqwest"] }
+# Without default features, `$ref`s never resolve over the network or from
+# disk: tool schemas come from untrusted MCP servers.
+jsonschema = { version = "0.33", default-features = false }
+rusqlite = { version = "0.32", features = ["bundled"] }
+r2d2 = "0.8"
+r2d2_sqlite = "=0.25.0"
+rusqlite_migration = "=1.3.1"
+semver = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["raw_value"] }
+sha2 = "0.10"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+sysinfo = { version = "0.39", default-features = false, features = ["system"] }
+mime_guess = "2"
+rust-embed = "8"
+tempfile = "3"
+tokio = { version = "1", features = ["full"] }
+tokio-util = { version = "0.7", features = ["rt"] }
+tokio-tungstenite = { version = "0.29", features = ["rustls-tls-webpki-roots"] }
+toml = { version = "0.8", default-features = false, features = ["parse"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["fs"] }
+url = "2"
+urlencoding = "2"
+uuid = { version = "1", features = ["v4", "serde"] }
+wasmtime = { version = "49", features = ["component-model"] }
+wasmtime-wasi = "49"
+zip = { version = "2", default-features = false, features = ["deflate"] }
+# Extract the vendored playwright-core and, outside Windows, the embedded
+# Node.js archive (Windows Node.js ships as a zip).
+flate2 = "1"
+tar = "0.4"
+serde-saphyr = "2.0.0"
+rig-core = { version = "0.44.0", features = ["reqwest"] }
+async-stream = "0.3.6"
+rig-reqwest = "0.44.0"
+
+[build-dependencies]
+sha2 = "0.10"
+
+[target.'cfg(unix)'.dependencies]
+liblzma = { version = "0.4", features = ["static"] }
+
+# The `delete` tool moves files to the system trash. Android has none, and the
+# crate does not build there.
+[target.'cfg(not(target_os = "android"))'.dependencies]
+trash = "5.3.0"
+
+[target.'cfg(all(unix, not(target_os = "macos")))'.dependencies]
+notify-rust = { version = "4.18", default-features = false, features = ["z"] }
+
+# Upstream verifies certificates on Android through a JVM that only an Android
+# app has, so in Termux every HTTPS request would panic. The vendored copy
+# verifies there as on other Unix systems; see its SQUIRE-PATCH.md.
+[patch.crates-io]
+rustls-platform-verifier = { path = "vendor/rustls-platform-verifier" }
+
+# Keep the dev target directory small. Line tables are enough for file:line
+# backtraces in our own crates, and dependencies need no debug info at all.
+# Incremental is off so rustc does not accumulate .rcgu.o scratch state
+# (several GB over time). Set debug = 2 and drop incremental = false here if
+# you need full variable-level debugging.
+[profile.dev]
+debug = 1
+incremental = false
+
+[profile.dev.package."*"]
+debug = false
+
+# Unoptimized Cranelift compiles WASM components many times slower, which
+# dominated marketplace releases and dev plugin installs for large
+# components (Python, JavaScript, Blender). These build once.
+[profile.dev.package.cranelift-codegen]
+opt-level = 3
+
+[profile.dev.package.cranelift-frontend]
+opt-level = 3
+
+[profile.dev.package.regalloc2]
+opt-level = 3
+
+[profile.dev.package.wasmparser]
+opt-level = 3
+
+[profile.dev.package.wasmtime-environ]
+opt-level = 3
+
+[profile.dev.package.wasmtime-internal-cranelift]
+opt-level = 3

@@ -1,0 +1,41 @@
+{
+  "name": "squire",
+  "version": "0.1.0",
+  "description": "Access to every useful tool through a streamlined interface.",
+  "author": {
+    "name": "Squire"
+  },
+  "repository": "https://github.com/adebola-io/squire",
+  "keywords": [
+    "squire",
+    "mcp",
+    "local",
+    "files",
+    "codebase",
+    "git",
+    "databases",
+    "automation",
+    "project-access"
+  ],
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Squire",
+    "shortDescription": "Scoped access to your local project folders and tools",
+    "longDescription": "Squire connects Codex to the real project folders, runtimes, and integrations on your machine through one scoped MCP session. Start a session to get the visible roots, skills, and action hints, then read and edit files, search code, run Git and shell work, query databases, and call installed Plugin Actions such as GitHub, MongoDB, SQLite, and more.",
+    "developerName": "Squire",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use Squire to inspect this project and summarize what changed",
+      "Use Squire to search my local files for a symbol",
+      "Use Squire to read a file and make a scoped edit"
+    ],
+    "composerIcon": "./assets/composer-icon.png",
+    "logo": "./assets/icon.png",
+    "screenshots": []
+  }
+}

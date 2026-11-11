@@ -1,0 +1,248 @@
+/* Use a shared column layout for account details. */
+.page {
+  flex: 1 1 0;
+  & > * {
+    inline-size: min(100%, calc(var(--squire-space-17) * 5.5));
+  }
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: start;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  padding-block: calc(var(--squire-space-9) + var(--squire-space-2)) var(--squire-space-6);
+  padding-inline: var(--squire-space-3);
+  container-type: inline-size;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  gap: var(--squire-space-2);
+  min-inline-size: 0;
+}
+
+.title {
+  padding-block-end: var(--squire-space-1);
+  font: var(--text-heading);
+}
+
+/* Reserve the account section's height while loading. */
+.identity {
+  display: grid;
+  align-content: start;
+  min-inline-size: 0;
+  min-block-size: calc(var(--squire-space-6) + var(--squire-space-4));
+}
+
+.checking {
+  padding-block: var(--squire-space-2);
+  font: var(--text-small);
+  color: var(--chat-text-muted);
+  animation: account-appear var(--squire-duration-reveal) ease-in var(--squire-delay-loading)
+    backwards;
+}
+
+/* Align text at the start and center actions at the end. */
+.block {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "headline actions"
+    "detail actions";
+  align-items: center;
+  column-gap: var(--squire-space-3);
+  row-gap: var(--squire-text-gap);
+  min-inline-size: 0;
+  padding-block: var(--squire-space-2);
+}
+
+/* Wrap email addresses without truncation. */
+.headline {
+  grid-area: headline;
+  min-inline-size: 0;
+  font: var(--text-subheading);
+  line-height: var(--squire-leading-tight);
+  color: var(--base);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.detail {
+  grid-area: detail;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  column-gap: var(--squire-space-1);
+  min-inline-size: 0;
+  font: var(--text-small);
+  line-height: var(--squire-leading-tight);
+  color: var(--chat-text-muted);
+}
+
+/* Align the status dot with the first line. */
+.dotLine {
+  display: grid;
+  place-items: center;
+  block-size: 1lh;
+}
+
+.dot {
+  inline-size: calc(var(--squire-space-1) * 0.75);
+  block-size: calc(var(--squire-space-1) * 0.75);
+  border-radius: var(--squire-round-full);
+  background-color: currentColor;
+
+  &[data-tone="idle"] {
+    background-color: transparent;
+    border: var(--squire-surface-stroke) solid currentColor;
+  }
+
+  &[data-tone="success"] {
+    color: var(--success);
+  }
+
+  &[data-tone="pending"] {
+    color: var(--pending);
+    animation: account-pulse var(--squire-duration-pulse) ease-in-out infinite;
+  }
+
+  &[data-tone="error"] {
+    color: var(--error);
+  }
+}
+
+/* Allow status and error messages to wrap. */
+.detailText,
+.detailText :where(*) {
+  min-inline-size: 0;
+  white-space: normal;
+  text-wrap: pretty;
+  overflow-wrap: anywhere;
+}
+
+/* Keep dates on one line. */
+.detailText time {
+  white-space: nowrap;
+}
+
+.separator {
+  padding-inline: var(--squire-space-half);
+}
+
+.device {
+  color: var(--base);
+}
+
+.countdown {
+  font-variant-numeric: tabular-nums;
+}
+
+.errorText {
+  color: var(--error);
+}
+
+.actions {
+  grid-area: actions;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--squire-space-1);
+}
+
+.actions > :only-child {
+  flex: 1 1 100%;
+  inline-size: 100%;
+}
+
+.actions:has(> :nth-child(2):last-child) > * {
+  flex: 0 0 auto;
+  inline-size: max-content;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  border-block-start: var(--squire-surface-stroke) solid var(--fainter-stroke);
+}
+
+.link {
+  align-self: flex-end;
+  font: var(--text-small);
+  color: var(--chat-text-muted);
+  text-decoration: none;
+  border-radius: var(--squire-round-sm);
+
+  &[href]:hover,
+  &[href]:focus-visible {
+    color: var(--accent-ink);
+    text-decoration: underline;
+  }
+
+  &[aria-disabled="true"] {
+    opacity: var(--squire-opacity-dim);
+  }
+}
+
+.notice {
+  font: var(--text-small);
+  line-height: var(--squire-leading-tight);
+  color: var(--chat-text-muted);
+  white-space: normal;
+  text-wrap: pretty;
+  overflow-wrap: anywhere;
+
+  &[data-tone="error"] {
+    color: var(--error);
+  }
+}
+
+.srOnly {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+/* Place actions below the details on narrow screens. */
+@container (max-width: 33rem) {
+  .block {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "headline"
+      "detail"
+      "actions";
+  }
+
+  .actions {
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    padding-block-start: var(--squire-space-1);
+  }
+}
+
+@keyframes account-pulse {
+  50% {
+    opacity: var(--squire-opacity-pulse);
+  }
+}
+
+@keyframes account-appear {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot[data-tone="pending"],
+  .checking {
+    animation: none;
+  }
+}

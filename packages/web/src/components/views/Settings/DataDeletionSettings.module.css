@@ -1,0 +1,99 @@
+.trigger:is(.trigger) {
+  align-self: flex-end;
+  color: var(--error);
+  border-color: color-mix(in srgb, var(--error) 40%, transparent);
+  background-color: color-mix(in srgb, var(--error) 4%, transparent);
+
+  &:hover,
+  &:focus-visible {
+    background-color: color-mix(in srgb, var(--error) 10%, transparent);
+    border-color: var(--error);
+  }
+
+  &:active {
+    background-color: color-mix(in srgb, var(--error) 15%, transparent);
+  }
+}
+
+.confirmDanger:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.dialogContent:is(.dialogContent) {
+  inline-size: min(calc(var(--squire-space-17) * 3), calc(100dvw - var(--squire-space-5)));
+  min-inline-size: 0;
+  max-block-size: calc(100dvh - var(--squire-space-2));
+  padding: var(--squire-space-2);
+  border-radius: var(--squire-round-md);
+  overflow-y: auto;
+  inset: 0;
+  margin: auto;
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-2);
+  min-inline-size: 0;
+}
+
+.intro {
+  min-inline-size: 0;
+
+  & p {
+    color: var(--shallow);
+    line-height: var(--squire-leading-tight);
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-1);
+  min-inline-size: 0;
+}
+
+.confirmLabel {
+  font: var(--text-small);
+  color: var(--base);
+}
+
+.confirmInput {
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: var(--squire-space-5);
+  padding: var(--squire-space-1) var(--squire-space-2);
+  border: var(--squire-surface-stroke) solid var(--line-highlight);
+  border-radius: var(--squire-round-md);
+  background: transparent;
+  color: var(--base);
+  font: var(--text-body);
+}
+
+.confirmInput:focus-visible {
+  outline: var(--squire-focus-ring);
+  outline-offset: var(--squire-space-quarter);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--squire-space-1);
+  padding-block-start: var(--squire-space-1);
+}
+
+.error,
+.success {
+  font: var(--text-small);
+  overflow-wrap: anywhere;
+}
+
+.error {
+  color: var(--error);
+}
+
+.success {
+  color: var(--shallow);
+}

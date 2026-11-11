@@ -1,0 +1,27 @@
+/* Keep the page as its parent's layout item while applying `inert` to its descendants. */
+.pendingPage {
+  display: contents;
+
+  /* Remove the pending state immediately. */
+  & > * {
+    transition: opacity var(--squire-duration-reveal) ease;
+  }
+}
+
+/*
+ * Start dimming immediately to acknowledge navigation, even when the next page loads quickly.
+ */
+.pendingPage[data-pending] > * {
+  opacity: 0.5;
+}
+
+/* With reduced motion, delay the dim to avoid flashing during quick page loads. */
+@media (prefers-reduced-motion: reduce) {
+  .pendingPage > * {
+    transition-duration: 0s;
+  }
+
+  .pendingPage[data-pending] > * {
+    transition-delay: var(--squire-delay-loading);
+  }
+}

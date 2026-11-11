@@ -1,0 +1,12 @@
+node_modules/
+dist/
+build/
+target/
+.pnpm-store/
+.env
+.env.*
+!.env.example
+.squire/
+.tmp/
+.DS_Store
+*.log

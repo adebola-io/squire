@@ -1,0 +1,36 @@
+import { FRAME, type GlyphProps } from "./frame";
+
+import classes from "./WorkingGlyph.module.css";
+
+/** Move the pencil along the stroke, then reset it. */
+export function EditGlyph(props: GlyphProps) {
+  const { class: className } = props;
+  return (
+    <svg {...FRAME} class={className}>
+      <path
+        class={classes.editLine}
+        d="M6 24q1.5-2.4 3 0t3 0t3 0t3 0"
+        pathLength={1}
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <g class={classes.editPenX}>
+        <g class={classes.editPenY}>
+          {/* Keep the pencil's scale, tip position, and stroke width aligned with the line. */}
+          <path
+            transform="translate(6 24) rotate(-15) scale(0.72) translate(-6.1 -25.9)"
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M24.3708 6.42703C23.2626 5.31892 21.466 5.31892 20.3579 6.42703L6.96718 19.8178C6.57107 20.2139 6.30106 20.7184 6.1912 21.2676L5.63593 24.044C5.3712 25.3676 6.53821 26.5347 7.86185 26.27L10.6382 25.7147C11.1875 25.6049 11.692 25.3348 12.0881 24.9387L25.4788 11.548C26.5869 10.4399 26.5869 8.64326 25.4788 7.53514L24.3708 6.42703ZM21.6955 7.76464C22.0649 7.39527 22.6637 7.39527 23.0332 7.76464L24.1412 8.87276C24.5106 9.24212 24.5106 9.84099 24.1412 10.2104L21.6143 12.7372L19.1687 10.2915L21.6955 7.76464ZM17.831 11.6291L8.30479 21.1554C8.17275 21.2874 8.08275 21.4556 8.04613 21.6387L7.49086 24.415L10.2672 23.8597C10.4503 23.8231 10.6185 23.7332 10.7505 23.6011L20.2767 14.0749L17.831 11.6291Z"
+            fill="currentColor"
+            stroke="currentColor"
+            stroke-width="0.5"
+            stroke-linejoin="round"
+          />
+        </g>
+      </g>
+    </svg>
+  );
+}

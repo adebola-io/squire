@@ -1,0 +1,257 @@
+/*
+ * Animate the outer width to resize the main area. Keep the inner surface at its target width,
+ * pinned right, so its contents do not reflow during the animation.
+ */
+.rightPanel:not([open]) {
+  display: none;
+}
+
+.rightPanel {
+  --right-panel-open-width: min(var(--right-panel-width), 60dvw);
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  inset: auto;
+  margin: 0;
+  padding: 0;
+  max-inline-size: none;
+  max-block-size: none;
+  block-size: 100%;
+  min-block-size: 0;
+  flex: 0 0 auto;
+  justify-content: flex-end;
+  width: var(--right-panel-open-width);
+  overflow: clip;
+  opacity: 1;
+  border: 0;
+  border-left: var(--squire-surface-stroke) solid var(--fainter-stroke);
+  /*
+   * Use `backwards` fill so the opening keyframe does not override the closed state after the
+   * animation ends.
+   */
+  animation: right-panel-enter 220ms ease backwards;
+  transition:
+    width 220ms ease,
+    opacity 160ms ease;
+
+  /* Apply drag widths without easing to follow the pointer. */
+  &[data-resizing] {
+    transition: none;
+  }
+}
+
+.rightPanelSurface {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  & > :nth-child(3) {
+    flex: 1 1 0;
+    min-block-size: 0;
+  }
+  gap: var(--squire-space-2);
+  width: var(--right-panel-open-width);
+  block-size: 100%;
+  min-block-size: 0;
+  padding: var(--squire-space-2);
+  background-color: var(--foreground);
+  /* Keep the surface width independent of the animated outer width. */
+  contain: layout paint;
+}
+
+@media (max-width: 48rem) {
+  .rightPanel {
+    position: fixed;
+    inset: 0;
+    z-index: var(--squire-z-overlay);
+    inline-size: 100dvw;
+    block-size: 100dvh;
+    min-inline-size: 0;
+    background: var(--foreground);
+    border: 0;
+    animation: none;
+    transition: none;
+  }
+
+  .rightPanel::backdrop {
+    background: color-mix(in srgb, black 62%, transparent);
+  }
+
+  .rightPanelSurface {
+    inline-size: 100%;
+    block-size: 100%;
+    gap: 0;
+    padding: 0;
+    transition: translate var(--squire-duration-fast) ease;
+  }
+
+  .rightPanel[data-open] .rightPanelSurface {
+    animation: mobile-panel-enter var(--squire-duration-fast) ease backwards;
+  }
+
+  .rightPanelResizeHandle {
+    display: none;
+  }
+
+  .rightPanelContent {
+    padding: var(--squire-space-2);
+  }
+}
+
+@keyframes mobile-panel-enter {
+  from {
+    translate: 100% 0;
+  }
+}
+
+@media (max-width: 48rem) and (prefers-reduced-motion: reduce) {
+  .rightPanelSurface {
+    animation: none !important;
+    transition: none;
+  }
+}
+
+/* False removes `data-open`; the closed selector must match its absence. */
+.rightPanel:not([data-open]) {
+  width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 48rem) {
+  /* Overlay the full window on narrow screens. */
+  .rightPanel:not([data-open]) {
+    inline-size: 100dvw;
+    opacity: 1;
+    pointer-events: none;
+  }
+
+  .rightPanel:not([data-open]) .rightPanelSurface {
+    translate: 100% 0;
+  }
+}
+
+@keyframes right-panel-enter {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rightPanel {
+    animation: none;
+    transition: none;
+  }
+}
+
+.rightPanelResizeHandle {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: var(--squire-space-1);
+  cursor: ew-resize;
+}
+
+.rightPanelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: none;
+}
+
+.rightPanelBackBtn,
+.rightPanelTitle {
+  display: none;
+}
+
+@media (max-width: 48rem) {
+  .rightPanelHeader {
+    min-block-size: calc(var(--squire-space-6) + var(--squire-space-1));
+    padding-inline: var(--squire-space-2);
+    padding-block-start: env(safe-area-inset-top);
+  }
+
+  /* Preserve a symmetrical header without a redundant mobile close button. */
+  .rightPanelHeader::after {
+    content: "";
+    flex: 0 0 var(--squire-space-6);
+  }
+
+  .rightPanelBackBtn {
+    display: grid;
+    place-items: center;
+    inline-size: var(--squire-space-6);
+    block-size: var(--squire-space-6);
+    color: var(--base);
+    border-radius: var(--squire-round-sm);
+  }
+
+  .rightPanelBackBtn svg {
+    inline-size: var(--squire-space-3);
+    block-size: var(--squire-space-3);
+    rotate: 180deg;
+  }
+
+  .rightPanelTitle {
+    display: block;
+    flex: 1 1 0;
+    text-align: center;
+    font: var(--text-body);
+    font-size: var(--squire-space-2);
+    font-weight: 500;
+  }
+}
+
+.rightPanelCloseBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: var(--squire-space-4);
+  height: var(--squire-space-4);
+  color: var(--shallow);
+
+  @media (max-width: 48rem) {
+    display: none;
+  }
+  border-radius: var(--squire-round-sm);
+
+  & svg {
+    width: var(--squire-space-2);
+    height: var(--squire-space-2);
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--base);
+    background-color: var(--hover-state-lighter);
+  }
+
+  &:focus-visible {
+    outline: var(--squire-surface-stroke) solid var(--accent);
+    outline-offset: var(--squire-space-quarter);
+  }
+}
+
+/*
+ * Set overflow before children connect so they can find their scroll parent. FadeScroll
+ * resolves its direction later.
+ */
+.rightPanelContent {
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: none;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  overscroll-behavior-y: contain;
+
+  & > [data-region] {
+    min-block-size: 100%;
+  }
+}
+
+/* Provide an element root for each panel body without adding a layout box. */
+.rightPanelBody {
+  display: contents;
+}

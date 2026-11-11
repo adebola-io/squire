@@ -1,0 +1,15 @@
+{
+  "ports": {
+    "web": 4296
+  },
+  "limits": {
+    "maxFileSizeBytes": 200000,
+    "maxReadFileSizeBytes": 100000,
+    "maxSearchLineLength": 300,
+    "commandTimeoutMs": 30000,
+    "actionMaxRuntimeMs": 1200000,
+    "commandOutputLimitBytes": 100000,
+    "treeMaxResults": 200
+  },
+  "allowedHosts": []
+}

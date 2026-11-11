@@ -1,0 +1,7 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-half);
+  color: var(--base);
+  font: var(--text-small);
+}

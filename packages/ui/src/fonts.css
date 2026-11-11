@@ -1,0 +1,24 @@
+@import "./assets/fonts/source-serif-4/fonts.css";
+
+/* Geist Sans variable font, upright only: the family ships no italic, so the browser slants it
+ * where italics appear, matching the existing Geist Mono handling below. */
+@font-face {
+  font-family: "Geist Sans";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./assets/fonts/geist-sans/GeistSans-Variable.woff2") format("woff2");
+}
+
+/*
+ * Geist Mono's variable font, upright only: the family ships no italic, so the browser slants it
+ * where italics appear in code. The file is a truetype variable font, not a woff2, so it keeps
+ * its `wght` axis without a second conversion step.
+ */
+@font-face {
+  font-family: "Geist Mono";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./assets/fonts/geist-mono/GeistMono-Variable.ttf") format("truetype");
+}

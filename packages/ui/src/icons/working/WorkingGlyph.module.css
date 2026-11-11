@@ -1,0 +1,852 @@
+/*
+ * SVG pixel values use a 32-unit viewBox. Resting styles support reduced motion. Paths use
+ * `pathLength=1`, a dash of 1, and a gap of 2; offset 1 hides the stroke without repeating a
+ * round cap.
+ */
+
+.glyph * {
+  transform-box: view-box;
+  animation-duration: var(--chat-icon-cycle, 2.4s);
+  animation-iteration-count: infinite;
+  animation-timing-function: var(--chat-icon-ease, cubic-bezier(0.65, 0, 0.35, 1));
+}
+
+/* Thinking --------------------------------------------------------------- */
+
+.brainLeft,
+.brainRight {
+  transform-origin: 16px 16px;
+}
+
+.brainLeft {
+  animation-name: chat-brain-left;
+}
+
+.brainRight {
+  animation-name: chat-brain-right;
+}
+
+.brainSparkLeft,
+.brainSparkRight,
+.brainSparkTop {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.brainSparkLeft {
+  animation-name: chat-brain-spark-left;
+}
+
+.brainSparkRight {
+  animation-name: chat-brain-spark-right;
+}
+
+.brainSparkTop {
+  animation-name: chat-brain-spark-top;
+}
+
+/* Animate both sides of the thinking glyph. */
+@keyframes chat-brain-left {
+  0%,
+  30%,
+  58%,
+  82%,
+  100% {
+    transform: scale(1);
+  }
+  12% {
+    transform: scale(1.08);
+  }
+  68% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes chat-brain-right {
+  0%,
+  25%,
+  55%,
+  58%,
+  82%,
+  100% {
+    transform: scale(1);
+  }
+  37% {
+    transform: scale(1.08);
+  }
+  68% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes chat-brain-spark-left {
+  0%,
+  6% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  12% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  26%,
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+@keyframes chat-brain-spark-right {
+  0%,
+  31% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  37% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  51%,
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+@keyframes chat-brain-spark-top {
+  0%,
+  62% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  68% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  82%,
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+/* Working between steps ------------------------------------------------- */
+
+/* Keep a static stroke visible between pulses. */
+.activityTrack {
+  opacity: calc(var(--squire-opacity-pulse) / 2);
+}
+
+.activityTrace {
+  stroke-dasharray: 1 2;
+  animation-name: chat-activity-trace;
+}
+
+/* Draw the stroke, hold it, then fade it out. */
+@keyframes chat-activity-trace {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+    animation-timing-function: ease-in-out;
+  }
+  55%,
+  72% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  88% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+}
+
+/* Searching ------------------------------------------------------------- */
+
+.searchLens {
+  animation-name: chat-search-scan;
+}
+
+/* Rotate the lens around its center. */
+.searchGlint {
+  transform-origin: 14.81px 14.97px;
+  animation-name: chat-search-glint;
+}
+
+/* Pause the search motion at three positions. */
+@keyframes chat-search-scan {
+  0%,
+  10%,
+  100% {
+    transform: translate(-2.4px, -1.6px);
+  }
+  33%,
+  43% {
+    transform: translate(2.4px, -1.2px);
+  }
+  66%,
+  76% {
+    transform: translate(0.4px, 2.2px);
+  }
+}
+
+@keyframes chat-search-glint {
+  0%,
+  10%,
+  100% {
+    opacity: 1;
+    transform: rotate(-30deg);
+  }
+  21%,
+  54%,
+  88% {
+    opacity: var(--squire-opacity-pulse);
+  }
+  33%,
+  43% {
+    opacity: 1;
+    transform: rotate(25deg);
+  }
+  66%,
+  76% {
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+}
+
+/* Writing --------------------------------------------------------------- */
+
+.editLine {
+  stroke-dasharray: 1 2;
+  animation-name: chat-edit-line;
+}
+
+.editPenX {
+  animation-name: chat-edit-pen-x;
+}
+
+.editPenY {
+  animation-name: chat-edit-pen-y;
+}
+
+/* Synchronize the pen and line horizontally, with four vertical pen strokes. */
+@keyframes chat-edit-line {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+    animation-timing-function: linear;
+  }
+  60%,
+  72% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  86% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+}
+
+@keyframes chat-edit-pen-x {
+  0% {
+    transform: translateX(0);
+    animation-timing-function: linear;
+  }
+  60%,
+  68% {
+    transform: translateX(12px);
+  }
+  86%,
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes chat-edit-pen-y {
+  0%,
+  15%,
+  30%,
+  45% {
+    transform: translateY(0);
+    animation-timing-function: ease-out;
+  }
+  7.5%,
+  37.5% {
+    transform: translateY(-1.2px);
+    animation-timing-function: ease-in;
+  }
+  22.5%,
+  52.5% {
+    transform: translateY(1.2px);
+    animation-timing-function: ease-in;
+  }
+  60% {
+    transform: translateY(0);
+  }
+  68%,
+  86% {
+    transform: translateY(-2px);
+  }
+  94%,
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Reading --------------------------------------------------------------- */
+
+.filePage {
+  animation-name: chat-file-page;
+}
+
+.fileLine1 {
+  animation-name: chat-file-line-1;
+}
+
+.fileLine2 {
+  animation-name: chat-file-line-2;
+}
+
+.fileLine3 {
+  animation-name: chat-file-line-3;
+}
+
+@keyframes chat-file-page {
+  0%,
+  62%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  70% {
+    transform: translateY(-0.8px);
+  }
+}
+
+@keyframes chat-file-line-1 {
+  0%,
+  92%,
+  100% {
+    opacity: var(--squire-opacity-pulse);
+    transform: translateX(-1px);
+  }
+  10%,
+  80% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes chat-file-line-2 {
+  0%,
+  25%,
+  92%,
+  100% {
+    opacity: var(--squire-opacity-pulse);
+    transform: translateX(-1px);
+  }
+  35%,
+  80% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes chat-file-line-3 {
+  0%,
+  50%,
+  92%,
+  100% {
+    opacity: var(--squire-opacity-pulse);
+    transform: translateX(-1px);
+  }
+  60%,
+  80% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Looking up a skill ----------------------------------------------------- */
+
+.infoRing {
+  transform-origin: 16px 16px;
+  animation-name: chat-info-ring;
+}
+
+/* Scale the stem from its base. */
+.infoStem {
+  transform-origin: 16px 20.17px;
+  animation-name: chat-info-stem;
+}
+
+.infoDot {
+  animation-name: chat-info-dot;
+}
+
+@keyframes chat-info-ring {
+  0%,
+  32%,
+  48%,
+  100% {
+    transform: scale(1);
+  }
+  38% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes chat-info-stem {
+  0%,
+  94%,
+  100% {
+    opacity: var(--squire-opacity-pulse);
+    transform: scaleY(0.3);
+    animation-timing-function: ease-out;
+  }
+  18%,
+  80% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+/* Drop and bounce the dot. */
+@keyframes chat-info-dot {
+  0%,
+  16% {
+    opacity: 0;
+    transform: translateY(-4px);
+    animation-timing-function: ease-in;
+  }
+  20% {
+    opacity: 1;
+  }
+  32%,
+  48% {
+    transform: translateY(0);
+    animation-timing-function: ease-out;
+  }
+  40% {
+    transform: translateY(-1.4px);
+    animation-timing-function: ease-in;
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  92% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* Making a folder -------------------------------------------------------- */
+
+/* Scale the folder from its base. */
+.folderBody {
+  transform-origin: 16px 23.78px;
+  animation-name: chat-folder-body;
+}
+
+.folderPlus {
+  transform-origin: 16px 17px;
+  animation-name: chat-folder-plus;
+}
+
+@keyframes chat-folder-body {
+  0%,
+  20%,
+  40%,
+  100% {
+    transform: scale(1);
+  }
+  26% {
+    transform: scale(1.05, 0.93);
+  }
+  34% {
+    transform: scale(0.98, 1.02);
+  }
+}
+
+@keyframes chat-folder-plus {
+  0%,
+  14% {
+    opacity: 0;
+    transform: scale(0.5) rotate(-90deg);
+    animation-timing-function: ease-out;
+  }
+  26% {
+    opacity: 1;
+    transform: scale(1.15) rotate(0deg);
+  }
+  34%,
+  80% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+  92% {
+    opacity: 0;
+    transform: scale(0.75) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5) rotate(-90deg);
+  }
+}
+
+/* Mapping a file tree ---------------------------------------------------- */
+
+/* Fade both ends of each line to hide round-cap dots. */
+.gridDivider,
+.gridBranch {
+  stroke-dasharray: 1 2;
+}
+
+.gridDivider {
+  animation-name: chat-grid-divider;
+}
+
+.gridBranch {
+  animation-name: chat-grid-branch;
+}
+
+@keyframes chat-grid-divider {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+  4%,
+  88% {
+    opacity: 1;
+  }
+  26%,
+  74% {
+    stroke-dashoffset: 0;
+  }
+  90% {
+    stroke-dashoffset: -1;
+  }
+  92% {
+    opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+}
+
+@keyframes chat-grid-branch {
+  0%,
+  22% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+  26%,
+  88% {
+    opacity: 1;
+  }
+  46%,
+  74% {
+    stroke-dashoffset: 0;
+  }
+  90% {
+    stroke-dashoffset: -1;
+  }
+  92% {
+    opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+}
+
+/* Checking a job --------------------------------------------------------- */
+
+/* Rotate around the clock's center. */
+.clockMinute,
+.clockHour {
+  transform-origin: 16px 16px;
+  animation-name: chat-clock-hand;
+  animation-timing-function: linear;
+}
+
+/* Turn the hour hand once per twelve minute-hand turns. */
+.clockHour {
+  animation-duration: calc(var(--chat-icon-cycle, 2.4s) * 12);
+}
+
+@keyframes chat-clock-hand {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* Cancelling a job ------------------------------------------------------- */
+
+.cancelCross {
+  animation-name: chat-cancel-shake;
+}
+
+/* Keep the cross visible between pulses. */
+.cancelTrack {
+  opacity: calc(var(--squire-opacity-pulse) / 2);
+}
+
+.cancelFirst,
+.cancelSecond {
+  stroke-dasharray: 1 2;
+}
+
+.cancelFirst {
+  animation-name: chat-cancel-first;
+}
+
+.cancelSecond {
+  animation-name: chat-cancel-second;
+}
+
+@keyframes chat-cancel-first {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  22% {
+    stroke-dashoffset: 0;
+  }
+  76% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  88% {
+    opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+}
+
+@keyframes chat-cancel-second {
+  0%,
+  22% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  44% {
+    stroke-dashoffset: 0;
+  }
+  76% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  88% {
+    opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+}
+
+@keyframes chat-cancel-shake {
+  0%,
+  46%,
+  68%,
+  100% {
+    transform: translateX(0);
+  }
+  51% {
+    transform: translateX(-1.2px);
+  }
+  56% {
+    transform: translateX(1.2px);
+  }
+  62% {
+    transform: translateX(-0.6px);
+  }
+}
+
+/* Deleting --------------------------------------------------------------- */
+
+/* Rotate the lid around its right edge. */
+.trashLid {
+  transform-origin: 25.23px 10.39px;
+  animation-name: chat-trash-lid;
+}
+
+/* Scale from the bin's base. */
+.trashBody {
+  transform-origin: 16px 24.41px;
+  animation-name: chat-trash-body;
+}
+
+/*
+ * Draw the scrap at the origin, then translate it into place so it rotates around its own
+ * center.
+ */
+.trashScrap {
+  opacity: 0;
+  transform-origin: 0 0;
+  transform: translate(13px, 16px);
+  animation-name: chat-trash-scrap;
+}
+
+@keyframes chat-trash-lid {
+  0%,
+  8% {
+    transform: rotate(0deg);
+    animation-timing-function: var(--chat-icon-spring, cubic-bezier(0.34, 1.56, 0.64, 1));
+  }
+  22%,
+  46% {
+    transform: rotate(16deg);
+    animation-timing-function: ease-in;
+  }
+  56% {
+    transform: rotate(-2deg);
+    animation-timing-function: ease-out;
+  }
+  62%,
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes chat-trash-body {
+  0%,
+  56%,
+  66%,
+  100% {
+    transform: scale(1);
+  }
+  60% {
+    transform: scale(1.03, 0.94);
+  }
+}
+
+/* Drop the scrap through the raised lid and finish with it hidden. */
+@keyframes chat-trash-scrap {
+  0%,
+  18% {
+    opacity: 0;
+    transform: translate(3px, 7px) rotate(-30deg);
+    animation-timing-function: ease-out;
+  }
+  22% {
+    opacity: 1;
+  }
+  32% {
+    transform: translate(9.6px, 8.4px) rotate(20deg);
+    animation-timing-function: ease-in;
+  }
+  40% {
+    opacity: 1;
+  }
+  44%,
+  100% {
+    opacity: 0;
+    transform: translate(13px, 16px) rotate(70deg);
+  }
+}
+
+/* A Plugin Action -------------------------------------------------------- */
+
+.pluginHead {
+  animation-name: chat-plugin-head;
+}
+
+/* Keep the cord's base fixed while stretching it with the plug head. */
+.pluginCord {
+  transform-origin: 16.5px 25.375px;
+  animation-name: chat-plugin-cord;
+}
+
+.pluginSpark {
+  opacity: 0;
+  transform-origin: 16.5px 3px;
+  animation-name: chat-plugin-spark;
+}
+
+@keyframes chat-plugin-head {
+  0%,
+  10% {
+    transform: translateY(0);
+    animation-timing-function: ease-in;
+  }
+  28% {
+    transform: translateY(-2.4px);
+    animation-timing-function: ease-out;
+  }
+  34%,
+  62% {
+    transform: translateY(-2.2px);
+  }
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Stretch the 4.17-unit cord by 1.576 to follow the head's 2.4-unit rise. */
+@keyframes chat-plugin-cord {
+  0%,
+  10% {
+    transform: scaleY(1);
+    animation-timing-function: ease-in;
+  }
+  28% {
+    transform: scaleY(1.576);
+    animation-timing-function: ease-out;
+  }
+  34%,
+  62% {
+    transform: scaleY(1.528);
+  }
+  80%,
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes chat-plugin-spark {
+  0%,
+  27% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  32% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  46%,
+  100% {
+    opacity: 0;
+    transform: scale(1.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glyph * {
+    animation: none;
+  }
+}

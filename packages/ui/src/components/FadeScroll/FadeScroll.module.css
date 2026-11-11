@@ -1,0 +1,36 @@
+:where(.container) {
+  display: flex;
+  flex-direction: column;
+  scrollbar-width: var(--squire-scrollbar-width, none);
+
+  &[data-direction="horizontal"] {
+    --fade-scroll-direction: to right;
+    flex-direction: row;
+    & > * {
+      flex-shrink: 0;
+    }
+
+    justify-content: start;
+    min-width: 100%;
+    width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: auto;
+  }
+
+  &[data-direction="vertical"] {
+    --fade-scroll-direction: to bottom;
+    flex-direction: column;
+    align-items: stretch;
+    & > * {
+      flex-shrink: 0;
+    }
+
+    justify-content: flex-start;
+    min-height: 0;
+    max-height: 100%;
+    height: 100%;
+    overflow-y: auto;
+    scrollbar-gutter: var(--squire-scrollbar-gutter, auto);
+    overscroll-behavior-y: auto;
+  }
+}

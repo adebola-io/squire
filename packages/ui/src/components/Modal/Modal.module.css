@@ -1,0 +1,15 @@
+.modalHeading {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--squire-space-half);
+
+  & > h1 {
+    font: var(--text-heading);
+    text-wrap: wrap;
+  }
+
+  & > p {
+    font: var(--text-small);
+    text-wrap: wrap;
+  }
+}

@@ -1,0 +1,332 @@
+@import "innate-ui/styles.css";
+@import "./fonts.css";
+
+/* Sizing - Mode 1 */
+:root,
+:host {
+  --squire-button-row-max-width: min(100dvw, 236px);
+  --squire-popup-width-large: min(100dvw, 325px);
+  --squire-popup-width-larger: min(100dvw, 455px);
+  --squire-popup-width-medium: min(100dvw, 268px);
+  --squire-surface-stroke: 1.5px;
+  --squire-text-gap: 0.125rem;
+  --squire-opacity-faded: 0.64;
+  /* Share opacity values for queued and pending content. */
+  --squire-opacity-dim: 0.6;
+  /* Set the minimum pulse opacity. */
+  --squire-opacity-pulse: 0.45;
+  --squire-duration-fast: 160ms;
+  /* Delay loading indicators to avoid flashes on quick requests. */
+  --squire-delay-loading: 300ms;
+  --squire-duration-reveal: 100ms;
+  /* Share spinner and pulse durations. */
+  --squire-duration-spin: 900ms;
+  --squire-duration-pulse: 1.6s;
+  /* Share fade durations. */
+  --squire-duration-switch: 300ms;
+  --squire-easing-standard: ease;
+  /* Share pressed and entry scales. */
+  --squire-scale-press: 0.92;
+  --squire-scale-press-soft: 0.96;
+  --squire-scale-press-large: 0.99;
+  --squire-round-xs: 4px;
+  --squire-round-sm: 4px;
+  --squire-round-md: 8px;
+  --squire-round-lg: 12px;
+  --squire-round-full: 50%;
+  --squire-round-pill: 999px;
+  /* Set the minimum hit target size. */
+  --squire-target-min: 44px;
+  --squire-focus-width: 2px;
+  --squire-icon-stroke: 1.6;
+  --squire-leading-tight: 1.5;
+  --squire-leading-code: 1.6;
+  --squire-leading-prose: 1.65;
+  /* Define stacking order. */
+  --squire-z-raised: 1;
+  --squire-z-overlay: 10;
+  --squire-space-0: 0rem;
+  --squire-space-quarter: 0.125rem;
+  --squire-space-half: 0.25rem;
+  --squire-space-1: 0.5rem;
+  --squire-space-2: 1rem;
+  --squire-space-3: 1.5rem;
+  --squire-space-4: 2rem;
+  --squire-space-5: 2.5rem;
+  --squire-space-6: 3rem;
+  --squire-space-7: 3.5rem;
+  --squire-space-8: 4rem;
+  --squire-space-9: 4.5rem;
+  --squire-space-10: 5rem;
+  --squire-space-11: 5.5rem;
+  --squire-space-12: 6rem;
+  --squire-space-13: 6.5rem;
+  --squire-space-14: 7rem;
+  --squire-space-15: 7.5rem;
+  --squire-space-16: 8rem;
+  --squire-space-17: 8.5rem;
+  --squire-right-panel-width: min(50dvw, 460px);
+  --squire-prompt-input-width: min(100dvw, 520px);
+  --squire-sidebar-width: min(40dvw, 275px);
+  --squire-log-height: min(30dvh, 300px);
+  /* The column every settings-like page uses, in the app and on the website. */
+  --squire-page-width: calc(var(--squire-space-17) * 5.5);
+  --squire-page-top: calc(var(--squire-space-9) + var(--squire-space-2));
+  /* Forms stay narrower than the page column. */
+  --squire-form-width: 26rem;
+  /* Browser viewer dimensions follow the Doop desktop and phone references. */
+  --squire-browser-width: 70rem;
+  --squire-browser-height: 44.5rem;
+  --squire-browser-tabs-height: 2.625rem;
+  --squire-browser-tab-height: 2.125rem;
+  --squire-browser-toolbar-height: 2.4375rem;
+  --squire-browser-url-height: 1.6875rem;
+  --squire-browser-mobile-tabs-height: 2.0625rem;
+  --squire-browser-mobile-tab-height: 1.8125rem;
+  --squire-browser-mobile-toolbar-height: 2rem;
+  --squire-browser-viewport-height: 1.875rem;
+  --squire-browser-mobile-url-height: 1.5rem;
+  --squire-browser-tab-max-width: 10.3125rem;
+  --squire-browser-tab-min-width: 5rem;
+  --squire-browser-size-control-width: 8.75rem;
+  --squire-browser-mobile-tab-width: 2.4375rem;
+  --squire-browser-mobile-active-width: 6.875rem;
+  --squire-browser-rule-width: 1px;
+}
+
+/*
+ * Colors - Mode 1. `data-color-scheme="dark"` keeps a subtree dark, such as a screen drawn over a
+ * photo, whatever the root scheme.
+ */
+:root,
+:host,
+[data-color-scheme="dark"] {
+  --line-highlight: #454444ff;
+  --foreground: #1f1f1fff;
+  --background: #151515ff;
+  --background-dim: #151515;
+  --background-dim-soft: #15151599;
+  --hover-state: #4746464d;
+  --fainter-stroke: #363535ff;
+  --badge: #38383880;
+  --hover-state-lighter: #47464650;
+  --faint: #8f8f8fff;
+  --success: #3caf3cff;
+  --pending: #ffe097ff;
+  --error: #ff8b8bff;
+  --base: #f5f5f5ff;
+  --approved: #bcdcffff;
+  --shallow: #ffffffb2;
+  --traffic-green: #19c332ff;
+  --traffic-yellow: #febc2eff;
+  --traffic-red: #ff736aff;
+  --background-transparent: #15151500;
+  --foreground-transparent: #1f1f1f00;
+  /* The theme color is white in the dark scheme and black in the light scheme. */
+  --squire-accent: #ffffff;
+  --accent: var(--squire-accent);
+  --accent-ink: var(--accent);
+  --btn-color: var(--accent);
+  --btn-text: var(--background);
+  /*
+   * Secondary text mixed toward the background. Dark-theme `--faint` is nearly white; the 65%
+   * mix retains at least 4.5:1 contrast.
+   */
+  --squire-text-muted: color-mix(in srgb, var(--base) 65%, transparent);
+  /* Keep the switch green so its state reads independently of the theme color. */
+  --squire-toggle-on: var(--success);
+  --squire-focus-ring: var(--squire-focus-width) solid var(--accent);
+  color-scheme: dark;
+}
+
+/* The light theme, selected by `data-color-scheme` on the root element. */
+:root[data-color-scheme="light"] {
+  color-scheme: light;
+
+  /* Use distinct elevations on the light canvas. */
+  --background: #f6f6f6;
+  --foreground: #ffffffff;
+  --background-dim: #ffffff;
+  --background-dim-soft: #f6f6f6;
+  --background-transparent: #f4f4f400;
+  --foreground-transparent: #ffffff00;
+
+  /* Use dark text in the light theme. */
+  --base: #1c1c1cff;
+  --faint: #5c5c5cff;
+  --shallow: #00000099;
+
+  /* Darken strokes in the light theme. */
+  --line-highlight: #c8c8c8ff;
+  --fainter-stroke: #e2e2e2ff;
+  --hover-state: #00000012;
+  --hover-state-lighter: #0000000d;
+  --badge: #00000010;
+
+  --success: #1a7f37ff;
+  --pending: #9a6700ff;
+  --error: #cf222eff;
+  --approved: #0969daff;
+
+  /* Use black on light backgrounds so the theme color stays readable. */
+  --accent: #000000;
+  --accent-ink: var(--accent);
+  --btn-color: var(--accent);
+  --btn-text: #ffffffff;
+  --btn-danger-text: var(--base);
+  --innate-color-on-accent: #ffffffff;
+
+  /* Override danger colors to retain contrast. */
+  --innate-color-danger: var(--error);
+}
+
+/* Undo light-only tokens inside a dark subtree, so their dark fallbacks apply again. */
+[data-color-scheme="dark"] {
+  --btn-danger-text: initial;
+  --innate-color-on-accent: initial;
+  --innate-color-danger: initial;
+}
+
+/* Use translucent accent selection to preserve text and syntax colors in both themes. */
+::selection {
+  background-color: color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+:root,
+:host {
+  --font-family: "Geist Sans", system-ui, sans-serif;
+  --font-family-heading: "Source Serif 4", serif;
+  /*
+   * Geist Mono draws box-drawing horizontals and verticals but not the corners, so the family
+   * list falls back to the system monospace for those few glyphs in tree output.
+   */
+  --font-family-mono: "Geist Mono", ui-monospace, monospace;
+}
+
+:root,
+:host {
+  /* Use rem units so text follows the browser's default font size. */
+  --log-font: normal 400 0.75rem var(--font-family-mono);
+  --log-font-smaller: normal 400 0.6667rem var(--font-family-mono);
+  --text-body: normal 400 0.89rem var(--font-family);
+  /* Use a slightly larger font for assistant replies. */
+  --text-answer: normal 400 0.92rem var(--font-family);
+  --text-title: normal 500 15pt var(--font-family-heading);
+  --text-heading: normal 400 13pt var(--font-family-heading);
+  --text-subheading: normal 400 10.5pt var(--font-family-heading);
+  --text-small: normal 400 0.75rem var(--font-family);
+  --text-tiny: normal 400 0.6667rem var(--font-family);
+}
+
+code {
+  font: var(--log-font);
+}
+
+/* Base element styles shared by the app and the website. */
+body {
+  font: var(--text-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2 {
+  font: var(--text-heading);
+}
+
+strong,
+b {
+  font-weight: 500;
+}
+
+button {
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+/* Disable selection on controls while keeping other text selectable. */
+button,
+[role="tab"],
+kbd {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Keep shared focus selectors at zero specificity so components can override them. */
+:where(button, a[href], [role="tab"], select, summary):focus-visible {
+  outline: var(--squire-focus-ring);
+  outline-offset: var(--squire-space-quarter);
+}
+
+/*
+ * Expand hit areas to at least 44px. Keep positioning specificity low for component overrides.
+ */
+:where(button, a[href], [role="tab"], summary) {
+  position: relative;
+}
+
+:where(button, a[href], [role="tab"], summary)::after {
+  content: "";
+  position: absolute;
+  inset-block: min(0px, calc((100% - var(--squire-target-min)) / 2));
+  inset-inline: min(0px, calc((100% - var(--squire-target-min)) / 2));
+}
+
+/* Keep Innate theme values within this boundary. */
+:root,
+:host {
+  --innate-color-canvas: var(--background);
+  --innate-color-base: var(--foreground);
+  --innate-color-elevated: var(--foreground);
+  --innate-color-recessed: var(--background);
+  --innate-color-control: var(--foreground);
+  --innate-color-surface: var(--hover-state);
+  --innate-color-surface-raised: var(--hover-state-lighter);
+  --innate-color-surface-hover: var(--hover-state-lighter);
+  --innate-color-fill: var(--fainter-stroke);
+  --innate-color-line: var(--line-highlight);
+  --innate-color-border: var(--fainter-stroke);
+  --innate-color-border-strong: var(--line-highlight);
+  --innate-color-interact: var(--line-highlight);
+  --innate-color-text: var(--base);
+  --innate-color-text-muted: var(--faint);
+  --innate-color-text-subtle: var(--shallow);
+  --innate-color-text-inactive: var(--shallow);
+  --innate-color-placeholder: var(--faint);
+  --innate-color-contrast: var(--base);
+  --innate-color-on-contrast: var(--background);
+  --innate-color-accent: var(--accent);
+  --innate-color-accent-highlight: var(--accent);
+  --innate-color-accent-strong: var(--accent);
+  --innate-color-on-accent: var(--background);
+  --innate-color-focus: var(--accent);
+  --innate-color-danger: var(--traffic-red);
+  --innate-color-on-danger: var(--base);
+  --innate-color-success: var(--success);
+  --innate-color-toggle-thumb: var(--base);
+  --innate-shadow-edge: transparent;
+  --innate-shadow-control: transparent;
+  --innate-shadow-overlay: transparent;
+  --innate-shadow-dialog: transparent;
+  --innate-shadow-drop: transparent;
+  --innate-shadow-field: none;
+  --innate-shadow-raised: none;
+  --innate-shadow-dialog-stack: none;
+  --innate-shadow-button-primary: none;
+  --innate-shadow-button-danger: none;
+  --innate-shadow-button-focus: none;
+  --innate-shadow-toggle-thumb: none;
+  --innate-radius-sm: var(--squire-round-sm);
+  --innate-radius-md: var(--squire-round-md);
+  --innate-radius-lg: var(--squire-round-lg);
+  --innate-radius-control: var(--squire-round-md);
+  --innate-radius-panel: var(--squire-round-md);
+  --innate-control-height-small: var(--squire-space-5);
+  --innate-control-height: var(--squire-space-6);
+  --innate-size-icon: var(--squire-space-2);
+  --innate-size-icon-sm: var(--squire-space-2);
+  --innate-border-width: var(--squire-surface-stroke);
+  --innate-ring-width: var(--squire-surface-stroke);
+}

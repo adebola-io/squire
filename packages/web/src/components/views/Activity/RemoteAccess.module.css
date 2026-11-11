@@ -1,0 +1,587 @@
+/* Remote Access card, connect banner, Apps sheet and Diagnostics panel (remote-access-mockup). */
+
+.remote,
+.banner {
+  inline-size: 100%;
+  max-inline-size: calc(var(--squire-space-17) * 6.5);
+  margin-inline: auto;
+}
+
+/* ------------------------------------------------------------------ card */
+.remote {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-1);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--squire-space-1);
+}
+
+/* Device, system and state share one quiet line; a separator only between parts that are there. */
+.meta {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: baseline;
+  gap: var(--squire-space-half);
+  min-inline-size: 0;
+  color: var(--faint);
+  font: var(--text-small);
+
+  & > * + *::before {
+    content: "·";
+    margin-inline-end: var(--squire-space-half);
+  }
+}
+
+.deviceName {
+  min-inline-size: 0;
+  overflow: hidden;
+  color: var(--base);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.os,
+.state {
+  flex: none;
+  white-space: nowrap;
+}
+
+.state[data-tone="success"] {
+  color: var(--success);
+}
+
+.state[data-tone="pending"] {
+  color: var(--pending);
+}
+
+.state[data-tone="error"] {
+  color: var(--error);
+}
+
+.controls {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--squire-space-half);
+  margin-inline-start: auto;
+}
+
+.iconButton {
+  display: grid;
+  place-items: center;
+  inline-size: calc(var(--squire-space-3) + var(--squire-space-half));
+  block-size: calc(var(--squire-space-3) + var(--squire-space-half));
+  border-radius: var(--squire-round-sm);
+  color: var(--shallow);
+
+  & svg {
+    inline-size: var(--squire-space-2);
+    block-size: var(--squire-space-2);
+  }
+
+  &:hover {
+    color: var(--base);
+    background: var(--hover-state-lighter);
+  }
+
+  &:focus-visible {
+    outline: var(--squire-focus-width) solid var(--accent);
+    outline-offset: var(--squire-space-quarter);
+  }
+}
+
+.line {
+  color: var(--shallow);
+  font: var(--text-small);
+  white-space: normal;
+  text-wrap: pretty;
+}
+
+.progress {
+  position: relative;
+  block-size: 2px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--base) 10%, transparent);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inline-size: 40%;
+    border-radius: 2px;
+    background: var(--pending);
+    animation: remote-sweep 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes remote-sweep {
+  from {
+    translate: -100% 0;
+  }
+
+  to {
+    translate: 250% 0;
+  }
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--shallow);
+  font: var(--text-small);
+}
+
+.footAction {
+  color: var(--shallow);
+  font: var(--text-small);
+  text-decoration: underline;
+  text-underline-offset: var(--squire-space-quarter);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--base);
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--squire-space-half);
+}
+
+.actions > :only-child {
+  flex: 1 1 100%;
+  inline-size: 100%;
+}
+
+.actions:has(> :nth-child(2):last-child) > * {
+  flex: 0 0 auto;
+  inline-size: max-content;
+}
+
+.linkButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: var(--squire-space-4);
+  padding-inline: var(--squire-space-2);
+  border-radius: var(--squire-round-sm);
+  background: var(--base);
+  color: var(--background);
+  font: var(--text-small);
+  text-decoration: none;
+
+  &:focus-visible {
+    outline: var(--squire-focus-width) solid var(--accent);
+    outline-offset: var(--squire-space-quarter);
+  }
+}
+
+.error {
+  color: var(--error);
+  font: var(--text-small);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* ---------------------------------------------------------------- banner */
+/* One flat colour, used by this banner and nothing else. */
+.banner {
+  --remote-violet: #7c5cff;
+
+  display: flex;
+  align-items: center;
+  gap: var(--squire-space-2);
+  padding: var(--squire-space-1) var(--squire-space-2);
+  border: var(--squire-surface-stroke) solid
+    color-mix(in srgb, var(--remote-violet) 30%, var(--fainter-stroke));
+  border-radius: var(--squire-round-md);
+  background: color-mix(in srgb, var(--remote-violet) 13%, var(--foreground));
+  text-align: start;
+  transition:
+    background-color var(--squire-duration-fast) ease,
+    border-color var(--squire-duration-fast) ease;
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--remote-violet) 44%, var(--fainter-stroke));
+    background: color-mix(in srgb, var(--remote-violet) 19%, var(--foreground));
+  }
+
+  &:focus-visible {
+    outline: var(--squire-focus-width) solid var(--accent);
+    outline-offset: var(--squire-space-quarter);
+  }
+}
+
+:global(:root[data-color-scheme="light"]) .banner {
+  --remote-violet: #6d4aff;
+
+  border-color: color-mix(in srgb, var(--remote-violet) 22%, var(--fainter-stroke));
+  background: color-mix(in srgb, var(--remote-violet) 7%, var(--foreground));
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--remote-violet) 34%, var(--fainter-stroke));
+    background: color-mix(in srgb, var(--remote-violet) 11%, var(--foreground));
+  }
+}
+
+.iconStack {
+  display: flex;
+  flex: none;
+  align-items: center;
+}
+
+.stackTile {
+  display: grid;
+  place-items: center;
+  inline-size: 26px;
+  block-size: 26px;
+  border: var(--squire-surface-stroke) solid
+    color-mix(in srgb, var(--base) 14%, var(--fainter-stroke));
+  border-radius: var(--squire-round-full);
+  background: var(--background);
+
+  & + & {
+    margin-inline-start: -7px;
+  }
+}
+
+.stackIcon {
+  inline-size: 14px;
+  block-size: 14px;
+}
+
+.bannerTitle {
+  flex: 1 1 0;
+  min-inline-size: 0;
+  font: var(--text-body);
+  font-weight: 500;
+}
+
+.bannerCaret {
+  flex: none;
+  inline-size: var(--squire-space-2);
+  block-size: var(--squire-space-2);
+  color: var(--shallow);
+}
+
+/* ------------------------------------------------------------------ sheet */
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-2);
+  inline-size: min(34rem, calc(100dvw - var(--squire-space-4)));
+  max-inline-size: 100%;
+  max-block-size: 84dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sheetHead {
+  display: flex;
+  align-items: center;
+  gap: var(--squire-space-1);
+
+  & h2 {
+    font: var(--text-body);
+    font-weight: 500;
+  }
+}
+
+.sheetClose {
+  margin-inline-start: auto;
+  min-block-size: var(--squire-space-4);
+  padding-block: 0;
+  padding-inline: var(--squire-space-1);
+  color: var(--shallow);
+  font: var(--text-small);
+  text-decoration: underline;
+  text-underline-offset: var(--squire-space-quarter);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--base);
+  }
+}
+
+.lede,
+.note {
+  color: var(--shallow);
+  font: var(--text-small);
+  white-space: normal;
+}
+
+.sheetSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-half);
+}
+
+.label {
+  padding-inline: var(--squire-space-half);
+  color: var(--faint);
+  font: var(--text-small);
+}
+
+.addApp {
+  display: flex;
+  align-items: center;
+  gap: var(--squire-space-1);
+  inline-size: 100%;
+  min-block-size: var(--squire-target-min);
+  padding-inline: var(--squire-space-half);
+  border-radius: var(--squire-round-sm);
+}
+
+.appIcon {
+  inline-size: var(--squire-space-2);
+  block-size: var(--squire-space-2);
+}
+
+.addAppName {
+  flex: 1 1 0;
+  min-inline-size: 0;
+  overflow: hidden;
+  font: var(--text-body);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.addApp {
+  text-align: start;
+
+  &:hover {
+    background: var(--hover-state-lighter);
+  }
+
+  &:focus-visible {
+    outline: var(--squire-focus-width) solid var(--accent);
+    outline-offset: calc(var(--squire-focus-width) * -1);
+  }
+}
+
+.addCaret {
+  inline-size: 12px;
+  block-size: 12px;
+  color: var(--faint);
+  rotate: 90deg;
+  transition: rotate var(--squire-duration-fast) ease;
+}
+
+.addApp[aria-expanded="true"] .addCaret {
+  rotate: 270deg;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-1);
+  margin: 0;
+  padding: 0 var(--squire-space-half) var(--squire-space-1) var(--squire-space-4);
+  list-style: none;
+
+  & li {
+    display: flex;
+    min-inline-size: 0;
+    gap: var(--squire-space-1);
+  }
+
+  & li > div {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  & p {
+    color: var(--shallow);
+    font: var(--text-small);
+    white-space: normal;
+  }
+}
+
+.steps .stepLink {
+  color: var(--base);
+  text-decoration: underline;
+  text-underline-offset: var(--squire-space-quarter);
+
+  &:hover {
+    color: var(--accent);
+  }
+
+  &:focus-visible {
+    outline: var(--squire-focus-width) solid var(--accent);
+    outline-offset: var(--squire-space-quarter);
+  }
+}
+
+.appNote,
+.appDocs {
+  display: block;
+  margin-inline-start: var(--squire-space-4);
+  margin-block-end: var(--squire-space-1);
+  color: var(--shallow);
+  font: var(--text-small);
+}
+
+.appDocs {
+  color: var(--base);
+  text-decoration: underline;
+  text-underline-offset: var(--squire-space-quarter);
+}
+
+.stepNumber {
+  display: grid;
+  place-items: center;
+  flex: none;
+  inline-size: 18px;
+  block-size: 18px;
+  border: var(--squire-surface-stroke) solid var(--fainter-stroke);
+  border-radius: var(--squire-round-full);
+  color: var(--faint);
+  font: var(--text-tiny);
+}
+
+.address {
+  display: flex;
+  align-items: center;
+  gap: var(--squire-space-1);
+  min-inline-size: 0;
+  margin-block-start: var(--squire-space-half);
+
+  & code {
+    min-inline-size: 0;
+    overflow: hidden;
+    color: var(--base);
+    font: var(--log-font);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.copy {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  gap: var(--squire-space-half);
+  min-block-size: 26px;
+  padding-inline: var(--squire-space-1);
+  border-radius: var(--squire-round-sm);
+  color: var(--shallow);
+  font: var(--text-small);
+
+  & svg {
+    inline-size: 12px;
+    block-size: 12px;
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--base);
+    background: var(--hover-state-lighter);
+  }
+}
+
+/* ------------------------------------------------------------ diagnostics */
+.diagnostics {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-2);
+}
+
+.diagnosticsTitle {
+  font: var(--text-body);
+  font-weight: 500;
+}
+
+.diagnosticsSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-half);
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  gap: var(--squire-space-half) var(--squire-space-1);
+  margin: 0;
+  font: var(--text-small);
+
+  & dt {
+    color: var(--shallow);
+  }
+
+  & dd {
+    margin: 0;
+    color: var(--base);
+    font: var(--log-font);
+    overflow-wrap: anywhere;
+  }
+
+  & dd[data-tone="error"] {
+    color: var(--error);
+  }
+}
+
+.events {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-half);
+  padding: 0;
+  list-style: none;
+}
+
+.event {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--squire-space-1);
+  font: var(--text-small);
+
+  & time {
+    color: var(--faint);
+    font: var(--log-font);
+    white-space: nowrap;
+  }
+
+  & span {
+    min-inline-size: 0;
+    color: var(--shallow);
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  &[data-tone="error"] span {
+    color: var(--error);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress::after {
+    animation: none;
+  }
+
+  .banner,
+  .addCaret {
+    transition: none;
+  }
+}
+
+@media (max-width: 30rem) {
+  .os {
+    display: none;
+  }
+
+  .copy span {
+    display: none;
+  }
+
+  .kv {
+    grid-template-columns: 7rem minmax(0, 1fr);
+  }
+}

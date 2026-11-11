@@ -1,0 +1,89 @@
+.root {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+}
+
+.nativeInput {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.input {
+  --squire-toggle-width: var(--squire-space-5);
+  --squire-toggle-height: calc(var(--squire-space-2) + var(--squire-space-half));
+  --squire-toggle-thumb-width: var(--squire-space-2);
+  --squire-toggle-thumb-height: calc(var(--squire-space-1) + var(--squire-space-half));
+  --squire-toggle-thumb-translate: 85%;
+
+  appearance: none;
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+
+  align-items: center;
+  inline-size: var(--squire-toggle-width);
+  min-inline-size: var(--squire-toggle-width);
+  block-size: var(--squire-toggle-height);
+  min-block-size: var(--squire-toggle-height);
+  padding-inline: var(--squire-space-half);
+  border: calc(var(--squire-space-quarter) / 2) solid var(--base);
+  border-radius: var(--squire-space-3);
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+}
+
+.input > span {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 0;
+}
+
+.input > span > span {
+  position: relative;
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.input > span > span > span {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 0;
+  inline-size: var(--squire-toggle-thumb-width);
+  block-size: var(--squire-toggle-thumb-height);
+  border-radius: var(--squire-space-3);
+  background-color: var(--base);
+  box-shadow: none;
+  translate: 0 -50%;
+  transform: none;
+}
+
+.input[aria-checked="true"] {
+  border-color: var(--squire-toggle-on, var(--success));
+  background: var(--squire-toggle-on, var(--success));
+  box-shadow: none;
+}
+
+/* The thumb takes the canvas color, so it stays distinct from the filled track. */
+.input[aria-checked="true"] > span > span > span {
+  inset-inline-start: 0;
+  background-color: var(--background);
+  translate: 0 -50%;
+  transform: translateX(var(--squire-toggle-thumb-translate));
+}
+
+.input:focus-visible {
+  box-shadow: none;
+  outline: var(--squire-focus-width) solid var(--accent);
+  outline-offset: var(--squire-space-quarter);
+}

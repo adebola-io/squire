@@ -1,0 +1,276 @@
+/* Apply theme colors to native scrollbars. */
+:root {
+  --squire-scrollbar-thumb: color-mix(in srgb, var(--base) 5%, transparent);
+  --squire-scrollbar-thumb-hover: color-mix(in srgb, var(--base) 36%, transparent);
+  --squire-scrollbar-size: var(--squire-space-1);
+  --squire-scrollbar-inset: var(--squire-space-quarter);
+  --squire-scrollbar-width: thin;
+  --squire-scrollbar-gutter: stable;
+  scrollbar-gutter: stable;
+  scrollbar-color: var(--squire-scrollbar-thumb) transparent;
+}
+
+/* Share the visible scrollbar thumb style. */
+:where(*) {
+  scrollbar-width: var(--squire-scrollbar-width);
+  scrollbar-color: var(--squire-scrollbar-thumb) transparent;
+}
+
+:where(*)::-webkit-scrollbar {
+  width: var(--squire-scrollbar-size);
+  height: var(--squire-scrollbar-size);
+}
+
+:where(*)::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:where(*)::-webkit-scrollbar-thumb {
+  border: var(--squire-scrollbar-inset) solid transparent;
+  border-radius: var(--squire-round-full);
+  background: var(--squire-scrollbar-thumb);
+  background-clip: padding-box;
+}
+
+:where(*)::-webkit-scrollbar-thumb:hover {
+  background-color: var(--squire-scrollbar-thumb-hover);
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overscroll-behavior: none;
+}
+
+/*
+ * Theme tokens and base element styles live in `squire-ui/styles.css`, shared with the website.
+ * This file holds only what is specific to the app shell.
+ */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  text-wrap: nowrap;
+  white-space: nowrap;
+}
+
+/* Also re-applied under `data-color-scheme="dark"`; see `squire-ui/styles.css`. */
+:root,
+[data-color-scheme="dark"] {
+  /* Share syntax colors across code renderers. */
+  --tool-syntax-comment: #a0a7b4;
+  --tool-syntax-string: #a5d6a7;
+  --tool-syntax-number: #ecc28b;
+  --tool-syntax-keyword: #c9a7f0;
+  --tool-syntax-type: #91c8eb;
+  --tool-syntax-function: #e7c78b;
+  --tool-syntax-constant: #efacbe;
+
+  /* Use a faint divider between progress entries. */
+  --chat-interim-rule: color-mix(in srgb, var(--base) 8%, transparent);
+  /* Mix a dimmer text color with the accent, so the shine stays visible in a monochrome theme. */
+  --chat-shimmer: color-mix(in srgb, var(--accent) 35%, var(--faint));
+  --chat-shimmer-duration: 2.2s;
+  /* Share divider spacing. */
+  --chat-interim-gap: calc(var(--squire-space-1) + var(--squire-space-half));
+  --chat-composer-rule: #e6e6e6ff;
+  /* The 62% placeholder mix, like the shared muted text, retains at least 4.5:1 contrast. */
+  --chat-text-muted: var(--squire-text-muted);
+  --chat-text-placeholder: color-mix(in srgb, var(--base) 62%, transparent);
+  --chat-column-width: calc(var(--squire-space-17) * 5);
+  /* Tint user bubbles with the accent so they read apart from replies. */
+  --chat-user-bubble: #5c3273cf;
+  --chat-user-bubble-stroke: transparent;
+  --chat-bubble-radius: calc(var(--squire-round-lg) * 1.5);
+  /* One height for a message's actions row, whether it holds icon buttons or
+     the editor's Cancel and Send, so opening the editor moves nothing below. */
+  --chat-actions-height: calc(var(--squire-space-2) + var(--squire-space-1));
+  --chat-motion-duration: 220ms;
+  --chat-answer-reveal-duration: 420ms;
+  /* Style the Stop control's loader ring. */
+  --chat-loader-stroke: 2px;
+  /* Share activity icon dimensions. */
+  --chat-icon-size: calc(var(--squire-space-2) + var(--squire-space-quarter));
+  /* Share glyph durations, easing, and overshoot. */
+  --chat-icon-cycle: 2.4s;
+  --chat-icon-ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --chat-icon-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --chat-logo-inset: 95%;
+  --chat-collapse-height: calc(var(--squire-space-17) * 2.25);
+  --chat-motion-easing: cubic-bezier(0.2, 0, 0, 1);
+  --chat-picker-shadow: 0 var(--squire-space-half) var(--squire-space-2) #0002;
+  --chat-model-picker-height: 26rem;
+  --chat-search-width: 40rem;
+  /* Set the home greeting font. */
+  --chat-greeting-font: normal 400 1.5rem var(--font-family-heading);
+  --chat-home-mark-size: calc(var(--squire-space-4) + var(--squire-space-half));
+  --chat-search-height: 30rem;
+  /*
+   * Draw hover backgrounds outside icon boxes. Use 44px spacing to keep hit areas from
+   * overlapping.
+   */
+  --chat-action-fill-spread: var(--squire-space-2);
+  --chat-action-gap: calc(var(--squire-target-min) - var(--squire-space-3));
+}
+
+/* Map `data-syntax` roles to shared colors in every code renderer. */
+[data-syntax="comment"] {
+  color: var(--tool-syntax-comment);
+}
+
+[data-syntax="string"],
+[data-syntax="string-expression"] {
+  color: var(--tool-syntax-string);
+}
+
+[data-syntax="number"],
+[data-syntax="changed"] {
+  color: var(--tool-syntax-number);
+}
+
+[data-syntax="keyword"] {
+  color: var(--tool-syntax-keyword);
+}
+
+[data-syntax="type"],
+[data-syntax="parameter"],
+[data-syntax="link"] {
+  color: var(--tool-syntax-type);
+}
+
+[data-syntax="function"] {
+  color: var(--tool-syntax-function);
+}
+
+[data-syntax="constant"] {
+  color: var(--tool-syntax-constant);
+}
+
+[data-syntax="operator"] {
+  color: var(--chat-text-muted);
+}
+
+[data-syntax="punctuation"] {
+  color: var(--base);
+}
+
+[data-syntax="inserted"] {
+  color: var(--success);
+}
+
+[data-syntax="deleted"] {
+  color: var(--error);
+}
+
+/* App-only light-theme values; the shared light theme is in `squire-ui/styles.css`. */
+:root[data-color-scheme="light"] {
+  --tool-syntax-comment: #55606e;
+  --tool-syntax-string: #1f6a3a;
+  --tool-syntax-number: #8a4b0f;
+  --tool-syntax-keyword: #6d28a9;
+  --tool-syntax-type: #0f5f8f;
+  --tool-syntax-function: #7a4a00;
+  --tool-syntax-constant: #9a2f4f;
+
+  /* The light accent is dark, so the bubble takes a little more of it. */
+  --chat-user-bubble: #edd3f0eb;
+  --chat-user-bubble-stroke: #9e9898;
+
+  --chat-composer-rule: #3a3a3aff;
+}
+
+/* Animate dialogs and automatic popovers; exclude manual overlays. */
+dialog,
+[popover="auto"]:not([data-native-popover]) {
+  animation: modal-animation var(--squire-duration-reveal) var(--squire-easing-standard);
+}
+
+@keyframes modal-animation {
+  from {
+    scale: 0.95;
+    opacity: 0.5;
+  }
+}
+
+/*
+ * Hide popovers until `data-side` is measured. Set the origin from `data-align`. Animate
+ * `transform` because Innate uses `translate` for gaps. Preserve animation progress with
+ * individual animation properties and play state.
+ */
+[popover][data-native-popover] {
+  --popover-enter-x: 0;
+  --popover-enter-y: 0;
+  --popover-enter-scale: var(--squire-scale-press-soft);
+  --popover-origin-x: center;
+  --popover-origin-y: center;
+  transform-origin: var(--popover-origin-x) var(--popover-origin-y);
+  animation: popover-enter var(--squire-duration-reveal) var(--squire-easing-standard);
+
+  &:not([data-side]) {
+    visibility: hidden;
+    animation-play-state: paused;
+  }
+
+  &[data-side="bottom"] {
+    --popover-enter-y: calc(var(--squire-space-1) * -1);
+    --popover-origin-y: top;
+  }
+  &[data-side="top"] {
+    --popover-enter-y: var(--squire-space-1);
+    --popover-origin-y: bottom;
+  }
+  &[data-side="right"] {
+    --popover-enter-x: calc(var(--squire-space-1) * -1);
+    --popover-origin-x: left;
+  }
+  &[data-side="left"] {
+    --popover-enter-x: var(--squire-space-1);
+    --popover-origin-x: right;
+  }
+
+  /* Set the transform origin from the alignment. */
+  &:is([data-side="top"], [data-side="bottom"]) {
+    &[data-align="start"] {
+      --popover-origin-x: left;
+    }
+    &[data-align="end"] {
+      --popover-origin-x: right;
+    }
+  }
+  &:is([data-side="left"], [data-side="right"]) {
+    &[data-align="start"] {
+      --popover-origin-y: top;
+    }
+    &[data-align="end"] {
+      --popover-origin-y: bottom;
+    }
+  }
+}
+
+@keyframes popover-enter {
+  from {
+    opacity: 0;
+    scale: var(--popover-enter-scale);
+    transform: translate(var(--popover-enter-x), var(--popover-enter-y));
+  }
+}
+
+/* Use opacity-only transitions with reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  [popover][data-native-popover] {
+    &,
+    &[data-side] {
+      --popover-enter-x: 0;
+      --popover-enter-y: 0;
+      --popover-enter-scale: 1;
+    }
+  }
+
+  dialog,
+  [popover="auto"]:not([data-native-popover]) {
+    animation: none;
+  }
+}

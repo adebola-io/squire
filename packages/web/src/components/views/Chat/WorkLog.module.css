@@ -1,0 +1,551 @@
+/* Readable chronological thinking timeline. */
+.inlineWork {
+  --log-marker: var(--squire-space-2);
+
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+}
+
+/* Keep the log mounted across disclosure transitions so selection is preserved. */
+.logDisclosure {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows var(--squire-duration-fast) var(--squire-easing-standard),
+    opacity var(--squire-duration-fast) var(--squire-easing-standard);
+
+  &[data-open] {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}
+
+/* On completion, fade the log first, then collapse the now-invisible space. */
+:global([data-handoff]) .logDisclosure:not([data-open]) {
+  transition:
+    grid-template-rows var(--squire-duration-fast) var(--squire-easing-standard)
+      var(--squire-duration-fast),
+    opacity var(--squire-duration-fast) var(--squire-easing-standard);
+}
+
+.logDisclosureInner {
+  min-block-size: 0;
+  overflow: hidden;
+}
+
+/*
+ * Cap the log through a descendant selector: FadeScroll's own `max-height: 100%` has the same
+ * specificity as a single class, so source order alone would decide the winner.
+ */
+.inlineWork .logScroll {
+  max-block-size: var(--squire-log-height);
+}
+
+.logScroll {
+  --squire-scrollbar-width: none;
+  --squire-scrollbar-gutter: auto;
+
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+
+  &[data-snap="true"] {
+    scroll-snap-type: y proximity;
+  }
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.logContent {
+  min-inline-size: 0;
+  padding-block: var(--squire-space-half) var(--squire-space-1);
+  /* Leave the sentinel as the only anchor candidate. */
+  overflow-anchor: none;
+  /*
+   * Clip the gliding list vertically so its transform never adds scrollable overflow; new
+   * steps rise in from the bottom edge. Inline overflow stays visible for focus rings.
+   */
+  overflow-y: clip;
+}
+
+/* End of log: anchor and snap target. */
+.logSentinel {
+  flex: none;
+  block-size: 2px;
+  overflow-anchor: auto;
+  scroll-snap-align: end;
+  pointer-events: none;
+}
+
+.steps {
+  /* Steps measure their offsets against the list, so nothing outside the log moves them. */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  --marker-top: var(--squire-space-half);
+  --next-marker-top: var(--squire-space-half);
+
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--log-marker) minmax(0, 1fr);
+  align-items: start;
+  column-gap: var(--squire-space-half);
+  min-inline-size: 0;
+  padding-block: var(--squire-space-half);
+}
+
+/* Align the icon with the first-line tool label, not the full multi-line row. */
+.step[data-kind="tool"] {
+  --marker-top: var(--squire-space-1);
+}
+
+/*
+ * Centre the icon on the box that holds the label instead of a fixed offset, so a font or
+ * line-height change cannot push the text away from it.
+ */
+.step[data-kind="tool"] > .marker {
+  align-self: stretch;
+  block-size: auto;
+  min-block-size: var(--log-marker);
+  margin-block-start: 0;
+}
+
+.step:has(+ .step[data-kind="tool"]) {
+  --next-marker-top: var(--squire-space-1);
+}
+
+/* Connect marker edges, leaving the same visible clearance at each end. */
+.step:has(+ .step)::before {
+  content: "";
+  position: absolute;
+  inset-block-start: calc(var(--marker-top) + var(--log-marker) + var(--squire-space-half));
+  inset-block-end: calc(var(--squire-space-half) - var(--next-marker-top));
+  inset-inline-start: calc(var(--log-marker) / 2 - 1px);
+  inline-size: 2px;
+  background-color: color-mix(in srgb, var(--base) 30%, transparent);
+  pointer-events: none;
+}
+
+/* Keep the ring 16px; shrink only the icon inside an active marker. */
+.steps[data-executing="true"]
+  .step[data-kind="tool"]:not(:has(~ .step[data-kind="tool"])):is(
+    [data-status="running"],
+    [data-status="pending"]
+  )
+  .marker {
+  --log-icon-size: calc(var(--log-marker) - var(--squire-space-half) - var(--squire-space-quarter));
+}
+
+/* Only the active step owns the loading ring, never a completed predecessor. */
+.steps[data-executing="true"]
+  .step[data-kind="tool"]:not(:has(~ .step[data-kind="tool"])):is(
+    [data-status="running"],
+    [data-status="pending"]
+  )
+  .marker::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  inline-size: var(--log-marker);
+  block-size: var(--log-marker);
+  box-sizing: border-box;
+  translate: -50% -50%;
+  border: 1.5px solid color-mix(in srgb, var(--accent) 26%, transparent);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: log-spin 1.1s linear infinite;
+}
+
+.marker {
+  --log-icon-size: var(--log-marker);
+  --chat-logo-inset: var(--log-icon-size);
+
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--log-marker);
+  block-size: var(--log-marker);
+  color: var(--chat-text-muted);
+
+  & > span:not(.milestone) {
+    inline-size: var(--log-icon-size);
+    block-size: var(--log-icon-size);
+  }
+}
+
+.milestone {
+  display: block;
+  inline-size: var(--squire-space-half);
+  block-size: var(--squire-space-half);
+  border-radius: var(--squire-round-full);
+  background-color: var(--chat-text-muted);
+}
+
+.body {
+  min-inline-size: 0;
+  min-block-size: var(--log-marker);
+  display: flex;
+  align-items: center;
+}
+
+.stepTitle {
+  min-inline-size: 0;
+  font: var(--text-body);
+  color: var(--shallow);
+  overflow-wrap: anywhere;
+}
+
+.step[data-kind="live"] .marker,
+.step[data-status="running"] .marker {
+  color: var(--base);
+}
+
+.step[data-kind="tool"]:not([data-status="running"], [data-status="pending"]) .marker {
+  color: var(--shallow);
+}
+
+.step[data-kind="done"] .marker {
+  color: var(--success);
+}
+
+.step[data-status="error"] .marker,
+.step[data-status="interrupted"] .marker {
+  color: var(--error);
+}
+
+.stepMessage {
+  min-inline-size: 0;
+  min-block-size: var(--log-marker);
+  padding-block: 0;
+  color: var(--base);
+}
+
+.stepMarkdown {
+  min-inline-size: 0;
+  font: var(--text-body);
+  line-height: var(--squire-leading-prose);
+  overflow-wrap: anywhere;
+
+  & :where(p, ul, ol) {
+    margin-block: 0;
+  }
+}
+
+/* Extra content occupies the second grid row; the heading and icon use the usual tool row. */
+.reasoningPreview,
+.toolActionName {
+  min-inline-size: 0;
+  margin-block-start: 0;
+  color: var(--chat-text-muted);
+  opacity: 0.55;
+  font: var(--text-small);
+  line-height: 1.45;
+}
+
+.toolActionName {
+  grid-column: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Remove the redundant space between tool headings and their secondary text. */
+.step[data-kind="tool"]:has(> .reasoningPreview, > .toolActionName) > .toolSummary {
+  padding-block-end: 0;
+}
+
+.reasoningPreview {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  max-block-size: 4.35em;
+  overflow: hidden;
+
+  &[data-has-text="false"] {
+    margin-block-start: 0;
+  }
+
+  &[data-scrolled="true"] {
+    mask-image: linear-gradient(to bottom, transparent, #000 28%);
+  }
+
+  /* Streamed previews ease to each new line; the script sets the height it measures. */
+  &[data-ease-height="true"] {
+    transition: block-size 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+.reasoningText {
+  display: block;
+  flex-shrink: 0;
+  inline-size: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Each tool call remains one selectable row with inspection in the side panel. */
+.toolSummary {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--squire-space-half);
+  min-inline-size: 0;
+  inline-size: 100%;
+  padding-block: var(--squire-space-half);
+  padding-inline: 0;
+  color: var(--base);
+  text-align: start;
+  border-radius: var(--squire-round-sm);
+
+  &:is(button):hover,
+  &:is(button):focus-visible,
+  &:is(button)[data-selected="true"] {
+    color: var(--base);
+    background-color: var(--hover-state-lighter);
+  }
+
+  &:is(button):active {
+    background-color: var(--hover-state);
+  }
+
+  &:is(button):focus-visible {
+    outline: var(--squire-focus-ring);
+  }
+}
+
+.toolMain {
+  display: flex;
+  align-items: center;
+  gap: var(--squire-space-half);
+  min-inline-size: 0;
+  min-block-size: var(--log-marker);
+  inline-size: 100%;
+}
+
+.toolLabel {
+  flex: 1 1 0;
+  min-inline-size: 0;
+  font: var(--text-body);
+  white-space: nowrap;
+}
+
+.toolLabelText {
+  display: inline-block;
+  max-inline-size: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: top;
+}
+
+.steps[data-executing="true"]
+  .step[data-kind="tool"]:not(:has(~ .step[data-kind="tool"])):is(
+    [data-status="running"],
+    [data-status="pending"]
+  )
+  .toolLabelText {
+  color: transparent;
+  background-image: linear-gradient(
+    90deg,
+    var(--base) 0%,
+    var(--base) 35%,
+    color-mix(in srgb, var(--base) 40%, var(--background)) 50%,
+    var(--base) 65%,
+    var(--base) 100%
+  );
+  background-size: 250% 100%;
+  background-clip: text;
+  animation: log-shimmer var(--chat-shimmer-duration) linear infinite;
+}
+
+.toolMeta {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--squire-space-half);
+  font: var(--text-small);
+  font-variant-numeric: tabular-nums;
+  color: var(--chat-text-muted);
+  opacity: 0;
+  transition: opacity var(--squire-duration-fast) var(--squire-easing-standard);
+
+  .toolSummary:hover &,
+  .toolSummary:focus-visible &,
+  .toolSummary[data-selected="true"] &,
+  .step[data-status="pending"] &,
+  .step[data-status="running"] & {
+    opacity: 1;
+  }
+
+  .step[data-status="error"] &,
+  .step[data-status="interrupted"] & {
+    color: var(--error);
+    opacity: 1;
+  }
+}
+
+.chevron {
+  flex: none;
+  inline-size: calc(var(--squire-space-1) + var(--squire-space-quarter));
+  block-size: calc(var(--squire-space-1) + var(--squire-space-quarter));
+  color: var(--chat-text-muted);
+  opacity: 0;
+  transition: opacity var(--squire-duration-fast) var(--squire-easing-standard);
+
+  .toolSummary:hover &,
+  .toolSummary:focus-visible &,
+  .toolSummary[data-selected="true"] & {
+    opacity: 1;
+  }
+}
+
+.earlier {
+  display: flex;
+  justify-content: flex-start;
+  padding-block: var(--squire-space-half);
+}
+
+.earlierButton {
+  padding-inline: var(--squire-space-half);
+  font: var(--text-small);
+  color: var(--chat-text-muted);
+  border-radius: var(--squire-round-sm);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--base);
+    background-color: var(--hover-state-lighter);
+  }
+
+  &:active {
+    background-color: var(--hover-state);
+  }
+}
+
+/* The existing structured inspector and attachment views remain unchanged. */
+.io {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-half);
+}
+
+.ioHeading {
+  font: var(--text-tiny);
+  color: var(--chat-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--squire-space-1);
+  min-inline-size: 0;
+
+  & > * {
+    flex: 1 1 calc(var(--squire-space-17) * 0.75);
+    min-inline-size: 0;
+  }
+}
+
+/* Result images use the same stable square preview footprint as chat images. */
+.attachment {
+  display: block;
+  flex: none;
+  inline-size: min(100%, calc(var(--squire-space-17) * 1.5));
+  aspect-ratio: 1;
+  border-radius: var(--squire-round-sm);
+  cursor: zoom-in;
+
+  &:focus-visible {
+    outline: var(--squire-focus-ring);
+    outline-offset: var(--squire-space-quarter);
+  }
+
+  & img {
+    max-inline-size: 100%;
+    max-block-size: 100%;
+    border: var(--squire-surface-stroke) solid var(--line-highlight);
+    border-radius: var(--squire-round-sm);
+    background-color: var(--badge);
+  }
+}
+
+.attachmentFile {
+  font: var(--text-small);
+  color: var(--shallow);
+  text-decoration: underline;
+  overflow-wrap: anywhere;
+}
+
+.inspectorMissing {
+  font: var(--text-body);
+  color: var(--shallow);
+  overflow-wrap: anywhere;
+}
+
+.inspectorMessage {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (hover: none) {
+  .toolMeta,
+  .chevron {
+    opacity: 1;
+  }
+}
+
+@keyframes log-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes log-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .steps[data-executing="true"]
+    .step[data-kind="tool"]:not(:has(~ .step[data-kind="tool"]))
+    .toolLabelText,
+  .steps[data-executing="true"]
+    .step[data-kind="tool"]:not(:has(~ .step[data-kind="tool"]))
+    .marker::after {
+    animation: none;
+  }
+
+  .steps[data-executing="true"]
+    .step[data-kind="tool"]:not(:has(~ .step[data-kind="tool"]))
+    .toolLabelText {
+    color: var(--base);
+    background-image: none;
+  }
+
+  .chevron,
+  .logDisclosure,
+  .toolMeta {
+    transition: none;
+  }
+}

@@ -1,0 +1,62 @@
+.row {
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  & > :nth-child(1) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+  & > :nth-child(2) {
+    flex: 0 1 calc(var(--squire-space-17) * 1.65);
+    min-inline-size: 0;
+  }
+
+  align-items: center;
+  gap: var(--squire-space-2);
+  min-inline-size: 0;
+  padding-block: var(--squire-space-2);
+}
+
+.row + .row {
+  border-block-start: var(--squire-surface-stroke) solid var(--fainter-stroke);
+}
+
+.text,
+.control {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--squire-text-gap);
+  min-inline-size: 0;
+}
+
+.label {
+  font: var(--text-body);
+  color: var(--base);
+}
+
+.hint {
+  font: var(--text-small);
+  color: var(--chat-text-muted);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Allow hints to wrap despite the shared nowrap reset. */
+.hint :where(*) {
+  white-space: normal;
+  text-wrap: wrap;
+  overflow-wrap: anywhere;
+}
+
+@container (max-width: 33rem) {
+  .row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .row > :nth-child(2) {
+    flex: 0 0 auto;
+    inline-size: 100%;
+  }
+}

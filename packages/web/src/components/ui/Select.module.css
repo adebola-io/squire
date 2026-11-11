@@ -1,0 +1,39 @@
+.wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  & > :nth-child(1) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  align-items: center;
+  min-inline-size: 0;
+  inline-size: 100%;
+}
+
+.wrapper .select {
+  appearance: none;
+  min-inline-size: 0;
+  padding-inline-end: calc(var(--squire-space-2) * 3);
+}
+
+.caret {
+  position: absolute;
+  inset-inline-end: 0;
+  inset-block: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-inline-end: var(--squire-space-2);
+  color: var(--shallow);
+  pointer-events: none;
+
+  & svg {
+    inline-size: var(--squire-space-2);
+    block-size: var(--squire-space-2);
+    rotate: 90deg;
+  }
+}

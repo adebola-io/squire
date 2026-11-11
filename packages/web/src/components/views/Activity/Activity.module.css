@@ -1,0 +1,880 @@
+/* Keep one content column as the diagnostics panel changes the available width. */
+.connections {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-1);
+  min-inline-size: 0;
+  min-block-size: 0;
+  padding-block: calc(var(--squire-space-9) + var(--squire-space-2)) var(--squire-space-3);
+  padding-inline: var(--squire-space-3);
+  container-type: inline-size;
+}
+
+.connectionsTitle,
+.threadSearch,
+.threadScroller,
+.noMatches,
+.emptyConnections {
+  inline-size: 100%;
+  max-inline-size: calc(var(--squire-space-17) * 6.5);
+  min-inline-size: 0;
+  margin-inline: auto;
+}
+
+/* A title and nothing else: the card below names the computer and its state. */
+.connectionsTitle {
+  font: var(--text-heading);
+}
+
+.historyPanel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--squire-space-1);
+  min-inline-size: 0;
+  min-block-size: 0;
+}
+
+/* Search and the remote controls stay outside the scrolling history. */
+.threadSearch {
+  flex: none;
+}
+
+.threadScroller {
+  flex: 1 1 0;
+  min-block-size: 0;
+  overscroll-behavior-y: contain;
+}
+
+.noMatches {
+  display: flex;
+  flex: 1 1 0;
+  flex-wrap: wrap;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  gap: var(--squire-space-2);
+  padding: var(--squire-space-3);
+  color: var(--shallow);
+  font: var(--text-small);
+  text-align: center;
+
+  & p {
+    min-inline-size: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  & button {
+    flex: none;
+    color: var(--base);
+    text-decoration: underline;
+    text-underline-offset: var(--squire-space-quarter);
+
+    &:focus-visible {
+      outline: var(--squire-focus-width) solid var(--accent);
+    }
+  }
+}
+
+.emptyConnections {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 0;
+}
+
+.threadList {
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  min-inline-size: 0;
+  margin: 0;
+  padding: var(--squire-space-2) 0;
+  list-style: none;
+}
+
+/* Show the client heading when collapsed and align expanded threads with its name. */
+.clientGroup {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  gap: var(--squire-space-half);
+  min-inline-size: 0;
+  padding-block: var(--squire-space-half);
+  border-block-end: var(--squire-surface-stroke) solid var(--fainter-stroke);
+
+  &:last-child {
+    border-block-end: 0;
+  }
+
+  &[data-expanded] {
+    padding-block-end: var(--squire-space-2);
+  }
+}
+
+.clientHeading {
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  & > :nth-child(2) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  align-items: center;
+  gap: var(--squire-space-1);
+  inline-size: 100%;
+  min-block-size: var(--squire-target-min);
+  padding: var(--squire-space-1);
+  border-radius: var(--squire-round-sm);
+  text-align: start;
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--hover-state-lighter);
+  }
+
+  &:active {
+    background-color: var(--hover-state);
+  }
+
+  &:focus-visible {
+    outline: var(--squire-focus-width) solid var(--accent);
+    outline-offset: calc(var(--squire-focus-width) * -1);
+  }
+}
+
+.clientCaret,
+.threadCaret {
+  inline-size: var(--squire-space-2);
+  block-size: var(--squire-space-2);
+  color: var(--shallow);
+  transition: transform var(--squire-duration-fast) var(--squire-easing-standard);
+}
+
+.clientGroup[data-expanded] .clientCaret,
+.threadCaret[data-open] {
+  transform: rotate(90deg);
+}
+
+.clientName {
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  & > :nth-child(2) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  align-items: center;
+  gap: var(--squire-space-1);
+  min-inline-size: 0;
+
+  & > span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.clientNameIcon {
+  inline-size: var(--squire-space-3);
+  block-size: var(--squire-space-3);
+}
+
+/* Adjust the white ChatGPT and Grok marks for the current theme. */
+:global(:root[data-color-scheme="light"]) .clientIcon[data-monochrome] {
+  filter: invert(1);
+}
+
+.clientCount {
+  color: var(--shallow);
+  font: var(--text-small);
+  white-space: nowrap;
+}
+
+.clientThreads {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  gap: var(--squire-space-1);
+  padding: 0;
+  padding-inline-start: calc(var(--squire-space-2) + var(--squire-space-1));
+  list-style: none;
+}
+
+/*
+ * Animate row heights because the flex column controls this container's block size, preventing
+ * its own block-size transition.
+ */
+.clientDisclosure {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows var(--squire-duration-fast) var(--squire-easing-standard),
+    opacity var(--squire-duration-fast) var(--squire-easing-standard);
+
+  &[data-open] {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}
+
+.clientDisclosureInner {
+  min-block-size: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.threadItem,
+.seeOlder {
+  min-inline-size: 0;
+}
+
+.threadItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  min-inline-size: 0;
+}
+
+/* The button and actions share one header hover surface. */
+.threadItem::before {
+  content: "";
+  grid-column: 1 / -1;
+  grid-row: 1;
+  align-self: stretch;
+  border-radius: var(--squire-round-sm);
+  pointer-events: none;
+}
+.threadItem:hover::before,
+.threadItem:focus-within::before {
+  background: var(--hover-state-lighter);
+}
+.threadItem:has(> .threadButton:active)::before {
+  background: var(--hover-state);
+}
+.threadEnd {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--squire-space-2);
+  grid-column: 2;
+  grid-row: 1;
+  min-inline-size: 0;
+  padding-inline: var(--squire-space-1);
+}
+.threadButton {
+  position: relative;
+  z-index: 1;
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  & > :nth-child(2) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  align-items: center;
+  gap: var(--squire-space-1);
+  inline-size: 100%;
+  min-block-size: var(--squire-target-min);
+  padding: var(--squire-space-2);
+  padding-inline-start: 0;
+  padding-inline-end: var(--squire-space-1);
+  border-radius: var(--squire-round-sm);
+  text-align: start;
+
+  &:focus-visible {
+    outline: var(--squire-focus-width) solid var(--accent);
+    outline-offset: calc(var(--squire-focus-width) * -1);
+  }
+}
+
+.threadText {
+  display: flex;
+  flex-direction: column;
+
+  gap: var(--squire-space-half);
+  min-inline-size: 0;
+}
+
+.threadHeading {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--squire-space-half) + var(--squire-space-quarter));
+  min-inline-size: 0;
+  font: var(--text-body);
+}
+
+.threadTitle {
+  flex: 0 1 auto;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.threadMetadata {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--squire-space-half);
+  min-inline-size: 0;
+  color: var(--shallow);
+  font: var(--text-small);
+}
+
+/* A small user-bubble-colored status dot aligned beside the thread title. */
+.threadWorkingSlot {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1em;
+  block-size: 1em;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--squire-duration-fast) var(--squire-easing-standard),
+    visibility var(--squire-duration-fast) var(--squire-easing-standard);
+
+  &[data-working] {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.threadWorkingSlot::after {
+  content: "";
+  inline-size: 0.55em;
+  block-size: 0.55em;
+  border-radius: var(--squire-round-full);
+  background: color-mix(in srgb, var(--chat-user-bubble) 70%, var(--base));
+}
+
+.threadWorkingSlot[data-working]::after {
+  animation: thread-working-fade 2.4s ease-in-out infinite;
+}
+
+@keyframes thread-working-fade {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .threadWorkingSlot {
+    transition: none;
+  }
+  .threadWorkingSlot[data-working]::after {
+    animation: none;
+  }
+}
+
+.threadClient {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--squire-space-quarter);
+  white-space: nowrap;
+}
+
+.threadClientIcon {
+  flex: none;
+  inline-size: var(--squire-space-2);
+  block-size: var(--squire-space-2);
+  object-fit: contain;
+}
+
+/* Only the monochrome client marks need inversion on a light surface. */
+:global(:root[data-color-scheme="light"]) .threadClientIcon[data-monochrome] {
+  filter: invert(1);
+}
+
+.threadActionsTrigger {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--squire-space-4);
+  block-size: var(--squire-space-4);
+  border-radius: var(--squire-round-sm);
+  color: var(--shallow);
+  opacity: 0;
+
+  & svg {
+    inline-size: var(--squire-space-2);
+    block-size: var(--squire-space-2);
+  }
+
+  &:hover,
+  &:focus-visible,
+  &[aria-expanded="true"] {
+    opacity: 1;
+    color: var(--base);
+    background: var(--hover-state-lighter);
+  }
+
+  &:focus-visible {
+    outline: var(--squire-focus-width) solid var(--accent);
+  }
+}
+
+.threadItem:hover .threadActionsTrigger,
+.threadItem:focus-within .threadActionsTrigger {
+  opacity: 1;
+}
+
+.threadActionsMenu {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: calc(var(--squire-space-17) * 1.1);
+  padding: var(--squire-space-half);
+}
+
+.threadActionsDelete {
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  & > :nth-child(2) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  align-items: center;
+  gap: var(--squire-space-1);
+  inline-size: 100%;
+  padding: var(--squire-space-1);
+  color: var(--error);
+  font: var(--text-small);
+  text-align: start;
+  border-radius: var(--squire-round-sm);
+
+  & svg {
+    inline-size: var(--squire-space-2);
+    block-size: var(--squire-space-2);
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: var(--hover-state-lighter);
+  }
+}
+
+.threadDeleteForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-3);
+}
+
+.threadDeleteActions {
+  display: flex;
+  justify-content: end;
+  gap: var(--squire-space-1);
+}
+
+.threadDeleteError {
+  color: var(--error);
+  font: var(--text-small);
+}
+
+@media (hover: none) {
+  .threadActionsTrigger {
+    opacity: 1;
+  }
+}
+
+.threadDisclosure {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  block-size: 0;
+  overflow: clip;
+  opacity: 0;
+  interpolate-size: allow-keywords;
+  transition:
+    block-size var(--squire-duration-fast) var(--squire-easing-standard),
+    opacity var(--squire-duration-fast) var(--squire-easing-standard);
+
+  &[data-open] {
+    block-size: auto;
+    opacity: 1;
+  }
+}
+
+.threadDisclosureInner {
+  min-block-size: 0;
+  overflow: hidden;
+}
+
+.seeOlder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-block: var(--squire-space-1);
+}
+
+.olderLink {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--squire-target-min);
+  padding: var(--squire-space-1);
+  border-radius: var(--squire-round-sm);
+  color: var(--shallow);
+  font: var(--text-small);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--base);
+    background-color: var(--hover-state-lighter);
+  }
+
+  &:focus-visible {
+    outline: var(--squire-focus-width) solid var(--accent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clientCaret,
+  .threadCaret,
+  .clientDisclosure,
+  .threadDisclosure {
+    transition: none;
+  }
+}
+
+.toolCallsContainer,
+.toolCallList {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+}
+
+.toolCallList {
+  gap: var(--squire-space-half);
+  padding: 0;
+  list-style: none;
+}
+
+.toolCallListItemContainer {
+  min-inline-size: 0;
+}
+
+.toolCallListItem {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  inline-size: 100%;
+  padding-block: var(--squire-space-half);
+  padding-inline: var(--squire-space-4) var(--squire-space-1);
+  text-align: start;
+  border-radius: var(--squire-round-sm);
+
+  &:hover,
+  &:focus-visible,
+  &[data-selected] {
+    background-color: var(--hover-state-lighter);
+  }
+}
+
+.toolCall {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-inline-start: calc(var(--squire-space-2) + var(--squire-space-1));
+  min-inline-size: 0;
+  row-gap: var(--squire-space-half);
+  align-items: stretch;
+}
+
+.toolCallIcon {
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: var(--squire-space-half);
+  inline-size: var(--squire-space-2);
+  block-size: var(--squire-space-2);
+}
+
+.toolCallName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.toolCallMetadetail {
+  padding-inline-start: var(--squire-space-half);
+  font: var(--log-font);
+  color: color-mix(var(--shallow) 65%, transparent);
+}
+
+.toolCallDetails {
+  display: flex;
+  align-items: center;
+  gap: var(--squire-space-half);
+  color: var(--shallow);
+  font: var(--text-tiny);
+}
+
+.toolCallStatus {
+  text-transform: capitalize;
+
+  &[data-status="completed"] {
+    color: var(--success);
+  }
+
+  &[data-status="error"] {
+    color: var(--error);
+  }
+
+  &[data-status="running"] {
+    color: var(--pending);
+  }
+}
+
+.toolCallsMoreButton {
+  align-self: flex-start;
+  margin-inline-start: var(--squire-space-4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clientCaret,
+  .threadCaret,
+  .clientDisclosure,
+  .threadDisclosure {
+    transition: none;
+  }
+}
+
+.toolCallPanel {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  gap: var(--squire-space-3);
+}
+
+.toolCallPanelHeader {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  min-inline-size: 0;
+  & > :nth-child(1) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  gap: var(--squire-space-1);
+}
+
+.toolCallPanelTitle {
+  font: var(--text-heading);
+  /* Truncate the call label while preserving space for its status. */
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toolCallPanelTool {
+  flex: 0 0 100%;
+  color: var(--shallow);
+  overflow-wrap: anywhere;
+}
+
+.toolCallPanelStatus {
+  flex: 0 0 auto;
+  align-self: center;
+  text-transform: capitalize;
+}
+
+.toolCallPanelMetadata {
+  flex: 0 0 100%;
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  & > :nth-child(4) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  gap: var(--squire-space-1);
+  align-items: center;
+  color: var(--faint);
+  overflow-wrap: anywhere;
+}
+
+.toolCallPanelIcon {
+  width: var(--squire-space-2);
+  height: var(--squire-space-2);
+}
+
+.toolCallPanelSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-2);
+}
+
+.toolCallPanelSectionTitle {
+  font: var(--text-subheading);
+}
+
+.toolCallPanelThread {
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  & > :nth-child(2) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  align-items: center;
+  gap: var(--squire-space-2);
+  padding: var(--squire-space-2);
+  border-radius: var(--squire-round-lg);
+  background-color: var(--badge);
+  overflow-wrap: anywhere;
+}
+
+.toolCallPanelThreadIcon {
+  width: var(--squire-space-2);
+  height: var(--squire-space-2);
+}
+
+.toolCallPanelThreadTitle {
+  white-space: nowrap;
+}
+
+.toolCallPanelRows {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.toolCallPanelRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-1);
+  min-height: var(--squire-space-8);
+  padding-block: var(--squire-space-2);
+  border-block-end: var(--squire-surface-stroke) solid var(--fainter-stroke);
+  overflow-wrap: anywhere;
+
+  &:last-child {
+    border-block-end: 0;
+  }
+}
+
+.toolCallPanelRowHeader {
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  & > :nth-child(1) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  align-items: center;
+  gap: var(--squire-space-1);
+
+  strong {
+    font: var(--text-small);
+    overflow-wrap: anywhere;
+  }
+
+  span {
+    color: var(--success);
+    font: var(--text-tiny);
+    text-transform: capitalize;
+  }
+}
+
+.toolCallPanelRow[data-status="error"] .toolCallPanelRowHeader span {
+  color: var(--error);
+}
+
+.toolCallPanelRow[data-status="running"] .toolCallPanelRowHeader span {
+  color: var(--pending);
+}
+
+/* Let structured values handle horizontal overflow within their cells. */
+.toolCallPanelValueScroll {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.toolCallPanelMedia {
+  max-width: 100%;
+  max-height: calc(var(--squire-space-17) * 4);
+  border-radius: var(--squire-round-md);
+  object-fit: contain;
+}
+
+.toolCallPanelImage {
+  display: flex;
+  align-items: start;
+  block-size: calc(var(--squire-space-17) * 4);
+  cursor: zoom-in;
+
+  &:focus-visible {
+    outline: var(--squire-focus-ring);
+    outline-offset: var(--squire-space-quarter);
+  }
+
+  & img {
+    max-inline-size: 100%;
+    max-block-size: 100%;
+    border-radius: var(--squire-round-md);
+    object-fit: contain;
+  }
+}
+
+@keyframes session-disclosure-open {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tool-call-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--squire-space-1) * -1));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .caret,
+  .threadDisclosure {
+    transition: none;
+  }
+
+  .threadDisclosure[data-open],
+  .toolCallListItemContainer[data-revealed] {
+    animation: none;
+  }
+}

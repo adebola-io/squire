@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "squire": {
+      "type": "http",
+      "url": "{{MCP_URL}}",
+      "oauth_resource": "{{MCP_URL}}"
+    }
+  }
+}

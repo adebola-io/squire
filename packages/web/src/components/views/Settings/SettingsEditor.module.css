@@ -1,0 +1,213 @@
+.page {
+  flex: 1 1 0;
+  & > * {
+    inline-size: min(100%, calc(var(--squire-space-17) * 5.5));
+  }
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: start;
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  padding-block: calc(var(--squire-space-9) + var(--squire-space-2)) var(--squire-space-6);
+  padding-inline: var(--squire-space-3);
+  container-type: inline-size;
+}
+
+.content,
+.heading,
+.form,
+.group,
+.groupFields,
+.feedback {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  min-inline-size: 0;
+}
+
+.content {
+  gap: var(--squire-space-3);
+
+  &:has(> [data-region]) {
+    flex: 1 1 0;
+  }
+}
+
+.heading {
+  gap: var(--squire-text-gap);
+  padding-block-end: var(--squire-space-1);
+}
+
+.title {
+  font: var(--text-heading);
+}
+
+.subtitle {
+  font: var(--text-small);
+  color: var(--shallow);
+  text-wrap: pretty;
+}
+
+.form {
+  gap: var(--squire-space-4);
+}
+
+.group {
+  gap: var(--squire-space-1);
+}
+
+.groupHeading {
+  font: var(--text-subheading);
+  color: var(--base);
+}
+
+.toggleWrap {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-block-size: var(--squire-target-min);
+}
+
+.inputWrap {
+  display: flex;
+  align-items: center;
+  min-inline-size: 0;
+}
+
+.input {
+  flex: 1;
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: var(--squire-target-min);
+  padding: var(--squire-space-1) var(--squire-space-2);
+  background: var(--foreground);
+  color: var(--base);
+  font: var(--text-body);
+  border: var(--squire-surface-stroke) solid var(--fainter-stroke);
+  border-radius: var(--squire-round-sm);
+}
+
+/* Keep the value and unit in the same control without a fixed gap. */
+.inputWrap:has(.unit) {
+  gap: var(--squire-space-half);
+  padding-inline: var(--squire-space-2);
+  background: var(--foreground);
+  border: var(--squire-surface-stroke) solid var(--fainter-stroke);
+  border-radius: var(--squire-round-sm);
+}
+
+.inputWrap:has(.unit) .input {
+  inline-size: 0;
+  min-block-size: calc(var(--squire-target-min) - 2 * var(--squire-surface-stroke));
+  padding-inline: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.input[type="number"] {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.input[type="number"]::-webkit-inner-spin-button,
+.input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.inputWrap:has(.unit):hover {
+  border-color: var(--shallow);
+}
+
+.inputWrap:has(.unit):focus-within {
+  outline: var(--squire-focus-ring);
+  outline-offset: var(--squire-space-quarter);
+}
+
+.inputWrap:has(.unit) .input:focus-visible {
+  outline: none;
+}
+
+.inputWrap:has(.unit):has(.input[aria-invalid="true"]) {
+  border-color: var(--error);
+}
+
+.input:hover {
+  border-color: var(--shallow);
+}
+
+.input:focus-visible {
+  outline: var(--squire-focus-ring);
+  outline-offset: var(--squire-space-quarter);
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--error);
+}
+
+.input:disabled {
+  opacity: 0.65;
+}
+
+.unit {
+  flex: none;
+  color: var(--chat-text-placeholder);
+  font: var(--text-small);
+  pointer-events: none;
+}
+
+.fieldError,
+.error {
+  font: var(--text-small);
+  color: var(--error);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--squire-space-2);
+  min-inline-size: 0;
+  padding-block: var(--squire-space-1) var(--squire-space-3);
+}
+
+.saveButton {
+  min-block-size: var(--squire-target-min);
+
+  &:disabled {
+    opacity: 0.5;
+  }
+
+  &:focus-visible {
+    outline: var(--squire-focus-ring);
+    outline-offset: var(--squire-space-quarter);
+  }
+}
+
+.feedback {
+  gap: var(--squire-text-gap);
+}
+
+.notice,
+.success {
+  font: var(--text-small);
+  color: var(--shallow);
+  white-space: normal;
+  text-wrap: pretty;
+}
+
+@container (max-width: 33rem) {
+  .footer {
+    align-items: flex-end;
+    flex-direction: column;
+  }
+}

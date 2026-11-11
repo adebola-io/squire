@@ -1,0 +1,84 @@
+.searchForm {
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  & > :nth-child(2) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  align-items: center;
+  gap: var(--squire-space-1);
+  width: 100%;
+  min-height: var(--squire-space-6);
+  color: var(--shallow);
+  background: var(--foreground);
+  border: var(--squire-surface-stroke) solid var(--line-highlight);
+  border-radius: var(--squire-round-md);
+  padding-inline: var(--squire-space-1) var(--squire-space-2);
+}
+
+.searchForm:focus-within {
+  outline: var(--squire-surface-stroke) solid var(--accent);
+  outline-offset: var(--squire-space-half);
+}
+
+.searchIcon {
+  width: var(--squire-space-2);
+  height: var(--squire-space-2);
+}
+
+.searchInput {
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  padding: 0;
+  color: var(--base);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+  box-shadow: none;
+  font: var(--text-body);
+  line-height: normal;
+}
+
+.searchInput:focus-visible {
+  box-shadow: none;
+}
+
+/* Use the custom clear button instead of the native control. */
+.searchInput::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.clearButton {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--squire-space-4);
+  block-size: var(--squire-space-4);
+  margin-inline-end: calc(var(--squire-space-1) * -1);
+  color: var(--shallow);
+  border-radius: var(--squire-round-sm);
+
+  & svg {
+    inline-size: var(--squire-space-2);
+    block-size: var(--squire-space-2);
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--base);
+    background: var(--hover-state-lighter);
+  }
+
+  &:focus-visible {
+    outline: var(--squire-focus-width) solid var(--accent);
+  }
+}
+
+.searchInput::placeholder {
+  color: var(--shallow);
+}

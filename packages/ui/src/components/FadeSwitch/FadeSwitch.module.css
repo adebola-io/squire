@@ -1,0 +1,28 @@
+/*
+ * Overlap FadeSwitch layers in one grid cell and size to the tallest layer. Allow a custom fade
+ * duration.
+ */
+.switch {
+  display: grid;
+  grid-template: minmax(0, auto) / minmax(0, 1fr);
+  min-inline-size: 0;
+}
+
+.layer {
+  grid-area: 1 / 1;
+  min-inline-size: 0;
+  transition: opacity var(--fade-switch-duration, var(--squire-duration-switch))
+    var(--squire-easing-standard);
+
+  &[data-leaving] {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+/* Start entry at the outgoing layer's final opacity. */
+@starting-style {
+  .layer[data-enter] {
+    opacity: 0;
+  }
+}

@@ -1,0 +1,3 @@
+-- Preview repair is implemented in the accompanying Rust migration hook.
+-- The hook recomputes all stored non-NULL previews using the same path as
+-- live updates and runs exactly once per database.

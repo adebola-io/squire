@@ -1,0 +1,117 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  gap: var(--squire-space-2);
+}
+
+.title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--squire-space-1);
+  font: var(--text-subheading);
+
+  & span {
+    font: var(--text-small);
+    color: var(--shallow);
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  counter-reset: parallel-calls;
+}
+
+.entry {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  gap: var(--squire-space-2);
+  padding-block: var(--squire-space-3);
+  border-block-end: var(--squire-surface-stroke) solid var(--fainter-stroke);
+  counter-increment: parallel-calls;
+
+  &:last-child {
+    border-block-end: 0;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  min-inline-size: 0;
+  gap: var(--squire-space-2);
+}
+
+.index {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-inline-size: var(--squire-space-4);
+  block-size: var(--squire-space-4);
+  color: var(--shallow);
+  background: var(--badge);
+  border-radius: var(--squire-round-sm);
+  font: var(--text-tiny);
+
+  &::before {
+    content: counter(parallel-calls);
+  }
+}
+
+.name {
+  flex: 1 1 0;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+  font: var(--text-small);
+}
+
+.status {
+  flex: none;
+  color: var(--shallow);
+  font: var(--text-tiny);
+}
+
+.entry[data-status="completed"] .status {
+  color: var(--success);
+}
+
+.entry[data-status="error"] .status {
+  color: var(--error);
+}
+
+.entry[data-status="running"] .status {
+  color: var(--pending);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  gap: var(--squire-space-1);
+
+  & h4 {
+    font: var(--text-small);
+    color: var(--shallow);
+  }
+}
+
+.value {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  max-block-size: calc(var(--squire-space-17) * 2.55);
+  overflow: auto;
+}
+
+.error {
+  color: var(--error);
+  font: var(--text-small);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

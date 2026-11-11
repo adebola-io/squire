@@ -1,0 +1,269 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  white-space: normal;
+  gap: var(--squire-space-2);
+}
+
+.heading {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--squire-space-1);
+  font: var(--text-subheading);
+
+  & span {
+    font: var(--text-small);
+    color: var(--shallow);
+  }
+}
+
+.files {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fileEntry {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  gap: var(--squire-space-1);
+  padding-block: var(--squire-space-2);
+  border-block-end: var(--squire-surface-stroke) solid var(--fainter-stroke);
+
+  &:last-child {
+    border-block-end: 0;
+  }
+}
+
+.fileHeader {
+  display: flex;
+  align-items: center;
+  min-inline-size: 0;
+  gap: var(--squire-space-2);
+}
+
+.fileIcon {
+  flex: none;
+  inline-size: var(--squire-space-2);
+  block-size: var(--squire-space-2);
+  color: var(--shallow);
+}
+
+.path {
+  flex: 1 1 0;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  direction: rtl;
+  text-align: left;
+  white-space: nowrap;
+  font: var(--log-font-smaller);
+  user-select: text;
+}
+
+.pathText {
+  unicode-bidi: isolate;
+}
+
+.detail {
+  flex: none;
+  font: var(--text-tiny);
+  color: var(--shallow);
+  white-space: nowrap;
+}
+
+.fileBody[data-direction="vertical"] {
+  display: flex;
+  flex-direction: column;
+  block-size: auto;
+  min-inline-size: 0;
+  max-block-size: calc(var(--squire-space-17) * 2.55);
+  /* Preserve line lengths and scroll horizontally. */
+  overflow-x: auto;
+  border-radius: var(--squire-round-sm);
+  background: var(--foreground);
+
+  &:focus-visible {
+    outline: var(--squire-focus-ring);
+    outline-offset: var(--squire-space-quarter);
+  }
+}
+
+/* Let a single file fill the panel. */
+.files[data-entries="1"] .fileBody[data-direction="vertical"] {
+  max-block-size: calc(var(--squire-space-17) * 4);
+}
+
+.code {
+  display: block;
+  margin: 0;
+  padding-block: var(--squire-space-1);
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  font: var(--log-font-smaller);
+  /* Use more padding for file contents than for code embedded in prose. */
+  line-height: 1.95;
+  color: var(--base);
+  user-select: text;
+
+  /*
+   * Extend row backgrounds across the widest line. Inherit the font to avoid the global `code`
+   * rule resetting size and line height.
+   */
+  & code {
+    display: block;
+    inline-size: max-content;
+    min-inline-size: 100%;
+    font: inherit;
+  }
+
+  /* Omit the gutter for edit previews because snippet-relative line numbers are misleading. */
+  &[data-mode="diff"] .codeNumber {
+    display: none;
+  }
+
+  &[data-mode="diff"] .codeLine {
+    grid-template-columns: 1ch minmax(0, 1fr);
+  }
+}
+
+/* Preserve source line breaks through rows, gutters, and tokens, overriding the app reset. */
+.code,
+.code * {
+  white-space: pre;
+  text-wrap: nowrap;
+}
+
+.codeLine {
+  display: grid;
+  grid-template-columns: auto 1ch minmax(0, 1fr);
+  align-items: start;
+  column-gap: var(--squire-space-half);
+  /* Keep empty lines at the normal line height. */
+  min-block-size: 1lh;
+  padding-inline: var(--squire-space-2);
+
+  &:first-child {
+    padding-block-start: var(--squire-space-half);
+  }
+
+  &:last-child {
+    padding-block-end: var(--squire-space-half);
+  }
+
+  &[data-kind="add"] {
+    background-color: color-mix(in srgb, var(--success) 12%, var(--foreground));
+
+    & .codeMarker {
+      color: var(--success);
+    }
+  }
+
+  &[data-kind="remove"] {
+    background-color: color-mix(in srgb, var(--error) 12%, var(--foreground));
+
+    & .codeMarker {
+      color: var(--error);
+    }
+  }
+
+  /* Highlight changed words within replaced lines. */
+  &[data-kind="add"] [data-change] {
+    background-color: color-mix(in srgb, var(--success) 26%, transparent);
+  }
+
+  &[data-kind="remove"] [data-change] {
+    background-color: color-mix(in srgb, var(--error) 26%, transparent);
+  }
+
+  /* Separate diff hunks with a padded divider. */
+  &[data-kind="gap"] {
+    min-block-size: var(--squire-space-1);
+    border-block-start: var(--squire-surface-stroke) solid var(--fainter-stroke);
+  }
+}
+
+.codeNumber {
+  min-inline-size: 3ch;
+  text-align: end;
+  color: var(--shallow);
+  user-select: none;
+}
+
+.codeMarker {
+  color: var(--shallow);
+  user-select: none;
+}
+
+.codeText {
+  min-inline-size: 0;
+}
+
+.source {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  max-block-size: calc(var(--squire-space-17) * 3);
+  margin: 0;
+  padding: var(--squire-space-2);
+  overflow: auto;
+  font: var(--log-font-smaller);
+  line-height: var(--squire-leading-code);
+  white-space: pre;
+  color: var(--base);
+  background-color: var(--badge);
+  border-radius: var(--squire-round-sm);
+  user-select: text;
+
+  & code {
+    white-space: inherit;
+  }
+}
+
+.query {
+  display: flex;
+  gap: var(--squire-space-2);
+  align-items: baseline;
+  min-inline-size: 0;
+  font: var(--text-small);
+
+  & span {
+    color: var(--shallow);
+  }
+
+  & code {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+    user-select: text;
+  }
+}
+
+.empty,
+.muted {
+  font: var(--text-small);
+  color: var(--shallow);
+}
+
+.error {
+  font: var(--text-small);
+  color: var(--error);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.extra {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-1);
+  min-inline-size: 0;
+}
+
+.extraHeading {
+  font: var(--text-small);
+  color: var(--shallow);
+}

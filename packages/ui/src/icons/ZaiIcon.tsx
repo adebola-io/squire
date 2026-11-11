@@ -1,0 +1,22 @@
+import { Svg, type SVGProps } from "./Svg";
+
+/** Z.ai's mark, from the same artwork used for its Activity client icon. */
+export const ZaiIcon = (props: SVGProps) => (
+  <Svg aria-hidden="true" viewBox="7 7 42 42" {...props}>
+    <path
+      d="M42.2649 48.265H13.7349C10.4199 48.265 7.73486 45.58 7.73486 42.265V13.735C7.73486 10.42 10.4199 7.73499 13.7349 7.73499H42.2799C45.5949 7.73499 48.2799 10.42 48.2799 13.735V42.28C48.2649 45.58 45.5799 48.265 42.2649 48.265Z"
+      fill="#2D2D2D"
+      stroke="white"
+      strokeWidth="0.94755"
+    />
+    <path
+      d="M28.7049 16.15L26.7549 18.925C26.4549 19.36 25.9449 19.63 25.4049 19.63H14.7549V16.135C14.7399 16.15 28.7049 16.15 28.7049 16.15Z"
+      fill="white"
+    />
+    <path d="M41.9498 16.15L25.2098 39.865H14.0498L30.7898 16.15H41.9498Z" fill="white" />
+    <path
+      d="M27.2947 39.865L29.2597 37.075C29.5597 36.64 30.0697 36.37 30.6097 36.37H41.2447V39.865H27.2947Z"
+      fill="white"
+    />
+  </Svg>
+);

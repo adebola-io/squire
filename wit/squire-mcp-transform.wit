@@ -1,0 +1,25 @@
+package squire:mcp-transform;
+
+interface transform {
+  record transform-input {
+    action-id: string,
+    upstream-name: string,
+    arguments-json: string,
+    result-json: string,
+    /// MIME type of each staged attachment. An attachment's index in this
+    /// list is the `attachmentIndex` its content block carries in
+    /// `result-json`, and what `transform-output.attachments` selects.
+    attachments: list<string>,
+  }
+
+  record transform-output {
+    structured-json: string,
+    attachments: list<u32>,
+  }
+
+  transform: func(input: transform-input) -> result<transform-output, string>;
+}
+
+world transformer {
+  export transform;
+}

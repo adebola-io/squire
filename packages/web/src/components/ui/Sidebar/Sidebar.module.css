@@ -1,0 +1,419 @@
+.sidebarContainer:not([open]) {
+  display: none;
+}
+
+.sidebarContainer {
+  position: relative;
+  display: block;
+  inset: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  max-inline-size: none;
+  max-block-size: none;
+  height: 100%;
+  width: var(--squire-sidebar-width);
+  overflow: hidden;
+  /* Exclude this docked sidebar from the global dialog scale-up animation.
+     Only the drawer itself should slide horizontally. */
+  animation: none;
+  transition: width 220ms ease;
+  background-color: var(--background-dim);
+  isolation: isolate;
+
+  &[data-is-closed] {
+    width: var(--squire-space-0);
+  }
+}
+
+.sidebar {
+  position: relative;
+  height: 100%;
+  width: var(--squire-sidebar-width);
+  background-color: var(--background-dim);
+  padding-top: var(--squire-space-8);
+  padding-inline: var(--squire-space-1);
+  border-right: var(--squire-surface-stroke) solid var(--fainter-stroke);
+  overflow: hidden;
+  transform: translateX(0);
+  transition: transform 220ms ease;
+}
+
+/* Slide the entire sidebar offscreen; don't fade or progressively scale its contents. */
+.sidebarContainer[data-is-closed] .sidebar {
+  transform: translateX(-100%);
+}
+
+.mobileSidebarHeader {
+  display: none;
+}
+
+@media (max-width: 48rem) {
+  .sidebarContainer,
+  .sidebarContainer[data-is-closed] {
+    position: fixed;
+    inset: 0;
+    z-index: var(--squire-z-overlay);
+    inline-size: 100dvw;
+    block-size: 100dvh;
+    overflow: hidden;
+    background: transparent;
+    isolation: auto;
+    transition: none;
+  }
+
+  .sidebarContainer::backdrop {
+    background: transparent;
+  }
+
+  /* One compositor-driven progress value for the scrim; the drawer uses a transform. */
+  .sidebarContainer::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, black 62%, transparent);
+    opacity: var(--sidebar-progress, 1);
+    pointer-events: none;
+    transition: opacity 220ms ease;
+  }
+
+  .sidebar {
+    inline-size: min(calc(var(--squire-space-16) * 2 + var(--squire-space-8)), 85dvw);
+    block-size: 100%;
+    padding-block-start: max(var(--squire-space-3), env(safe-area-inset-top));
+    border-inline-end: var(--squire-surface-stroke) solid var(--fainter-stroke);
+    border-inline-start: 0;
+    transform: none;
+    transition: transform 220ms ease;
+    opacity: 1;
+  }
+
+  .sidebarContainer[data-is-closed] .sidebar {
+    transform: none;
+  }
+
+  .sidebarContainer[data-swiping] .sidebar,
+  .sidebarContainer[data-swiping]::before {
+    transition: none;
+  }
+
+  @starting-style {
+    .sidebarContainer[open]::before {
+      opacity: 0;
+    }
+
+    .sidebarContainer[open] .sidebar {
+      transform: translate3d(-100%, 0, 0);
+    }
+  }
+
+  .mobileSidebarHeader {
+    display: flex;
+    justify-content: flex-end;
+    block-size: var(--squire-space-6);
+    padding-inline: var(--squire-space-1);
+  }
+
+  .mobileSidebarHeader button {
+    display: grid;
+    place-items: center;
+    inline-size: var(--squire-space-5);
+    block-size: var(--squire-space-5);
+    border-radius: var(--squire-round-sm);
+    color: var(--base);
+  }
+
+  .mobileSidebarHeader svg {
+    inline-size: var(--squire-space-3);
+    block-size: var(--squire-space-3);
+  }
+
+  .sidebarNav {
+    block-size: calc(100% - var(--squire-space-6));
+  }
+
+  .sidebarItem {
+    min-block-size: var(--squire-space-6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebarContainer,
+  .sidebar,
+  .sidebarToggleFloating {
+    transition: none;
+  }
+
+  .sidebarContainer::before {
+    transition: none;
+  }
+}
+
+.sidebarToggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--squire-round-sm);
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--hover-state-lighter);
+  }
+
+  &:active {
+    background-color: var(--hover-state);
+  }
+
+  svg {
+    height: var(--squire-space-3);
+    width: var(--squire-space-3);
+  }
+}
+
+.sidebarToggleFloating {
+  position: fixed;
+  z-index: 10;
+  top: calc(var(--squire-space-1) + var(--squire-space-half));
+  left: calc(var(--squire-space-3) + var(--squire-space-2));
+  width: var(--squire-space-4);
+  height: var(--squire-space-4);
+  translate: 0 0;
+  transition: translate 220ms ease;
+
+  &[data-sidebar-open] {
+    translate: calc(
+        var(--squire-sidebar-width) - (var(--squire-space-3) + var(--squire-space-2)) -
+          var(--squire-space-4) - var(--squire-space-2)
+      )
+      0;
+  }
+}
+
+@media (max-width: 48rem) {
+  .sidebarToggleFloating {
+    top: var(--squire-space-1);
+    left: var(--squire-space-2);
+    width: var(--squire-space-5);
+    height: var(--squire-space-5);
+  }
+
+  .sidebarToggleFloating[data-sidebar-open] {
+    translate: 0 0;
+  }
+}
+
+.sidebarNav {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-quarter);
+}
+
+.sidebarItem {
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  & > :nth-child(2) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+  gap: var(--squire-space-1);
+
+  padding: var(--squire-space-1);
+  block-size: fit-content;
+  border-radius: var(--squire-round-sm);
+  align-items: center;
+  text-align: start;
+  color: inherit;
+  text-decoration: none;
+
+  &:hover:not([data-selected]),
+  &:focus-visible:not([data-selected]) {
+    background-color: color-mix(in srgb, var(--base) 5%, transparent);
+  }
+
+  &:active,
+  &[data-selected] {
+    background-color: color-mix(in srgb, var(--base) 12%, transparent);
+  }
+
+  &:focus-visible {
+    outline: var(--squire-focus-width) solid var(--accent);
+    outline-offset: calc(var(--squire-focus-width) * -1);
+  }
+}
+
+.sidebarItemIcon {
+  height: var(--squire-space-3);
+  width: var(--squire-space-3);
+  color: var(--accent);
+}
+
+.sidebarItemName {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: start;
+}
+
+/* Anchor the menu inside the sidebar without clipping its interactive links. */
+.accountRow {
+  position: relative;
+  z-index: 2;
+}
+
+.accountTrigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--squire-space-1);
+  inline-size: 100%;
+  min-inline-size: 0;
+  padding: var(--squire-space-1);
+  padding-inline-end: var(--squire-space-5);
+  border-radius: var(--squire-round-sm);
+  text-align: start;
+  color: inherit;
+
+  &:hover,
+  &:focus-visible,
+  &[aria-expanded="true"] {
+    background-color: color-mix(in srgb, var(--base) 5%, transparent);
+  }
+
+  &:active {
+    background-color: color-mix(in srgb, var(--base) 12%, transparent);
+  }
+
+  &:focus-visible {
+    outline: var(--squire-focus-width) solid var(--accent);
+    outline-offset: calc(var(--squire-focus-width) * -1);
+  }
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  inline-size: var(--squire-space-4);
+  block-size: var(--squire-space-4);
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: color-mix(in srgb, var(--base) 8%, transparent);
+  color: var(--accent);
+
+  img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  svg {
+    inline-size: var(--squire-space-3);
+    block-size: var(--squire-space-3);
+  }
+}
+
+.avatarLoader {
+  animation: account-spin 0.9s linear infinite;
+}
+
+@keyframes account-spin {
+  to {
+    rotate: 1turn;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avatarLoader {
+    animation-duration: 2.4s;
+  }
+}
+
+/* Place the caret in the history action column and point it toward the open menu. */
+.accountCaret {
+  position: absolute;
+  inset-inline-end: calc(var(--squire-space-half) + var(--squire-space-1));
+  inset-block-start: 50%;
+  translate: 0 -50%;
+  inline-size: var(--squire-space-2);
+  block-size: var(--squire-space-2);
+  color: var(--faint);
+  transition: rotate 160ms ease;
+}
+
+.accountTrigger[aria-expanded="true"] .accountCaret {
+  rotate: -90deg;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accountCaret {
+    transition: none;
+  }
+}
+
+.accountName,
+.accountLoading {
+  flex: 1 1 0;
+  min-inline-size: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font: var(--text-small);
+}
+
+.accountLoading {
+  color: var(--faint);
+}
+
+.accountMenu {
+  position: absolute;
+  inset-block-end: calc(100% + var(--squire-space-1));
+  inset-inline-start: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-quarter);
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-inline-size: 0;
+  overflow: visible;
+  padding: var(--squire-space-half);
+  border: var(--innate-border-width) solid var(--innate-color-border);
+  border-radius: var(--innate-radius-md);
+  background: var(--innate-color-base);
+  color: var(--innate-color-text);
+  box-shadow: var(--innate-shadow-tooltip-stack);
+  font: var(--text-small);
+}
+
+.accountMenuItem {
+  display: flex;
+  align-items: center;
+  gap: var(--squire-space-1);
+  min-block-size: var(--squire-space-4);
+  padding-inline: var(--squire-space-1);
+  border-radius: var(--squire-round-sm);
+  color: inherit;
+  text-decoration: none;
+
+  svg {
+    inline-size: var(--squire-space-2);
+    block-size: var(--squire-space-2);
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: var(--hover-state-lighter);
+  }
+
+  &:active {
+    background: var(--hover-state);
+  }
+
+  &:focus-visible {
+    outline: var(--squire-focus-ring);
+    outline-offset: var(--squire-space-quarter);
+  }
+}

@@ -1,0 +1,13 @@
+.app {
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  & > :last-child {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  color: var(--base);
+  height: 100dvh;
+  width: 100%;
+}

@@ -1,0 +1,33 @@
+.mainContent {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  position: relative;
+  background-color: var(--background);
+
+  &[data-chat-page="true"] {
+    background-color: var(--background-dim-soft);
+  }
+
+  & > :not([data-right-panel]) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+    min-block-size: 0;
+  }
+
+  min-block-size: 0;
+  min-inline-size: 0;
+  /*
+   * `clip` prevents programmatic scrolling and does not make the other axis scrollable, so the
+   * whole view stays fixed.
+   */
+  overflow: clip;
+  /* Match the panel's width transition so its gutter moves with it. */
+  transition: padding-right 220ms ease;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+/* Overlay the panel on narrow windows. */

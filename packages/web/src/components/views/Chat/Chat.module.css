@@ -1,0 +1,2903 @@
+/* Layout ---------------------------------------------------------------- */
+
+.home {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--squire-space-2);
+  min-height: 0;
+  padding-block: var(--squire-space-3);
+  padding-inline: var(--squire-space-3);
+}
+
+.column {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-3);
+  width: min(100%, var(--chat-column-width));
+  container-type: inline-size;
+}
+
+/* Keyboard avoidance translates only the composer; the transcript stays put. */
+@media (max-width: 48rem) {
+  .column[data-keyboard-visible] {
+    background: var(--background-dim-soft);
+  }
+}
+
+.setupLink {
+  color: var(--accent-ink);
+}
+
+/* The chat layout and composer remain mounted; only its first child changes between
+   the home introduction and the conversation transcript. */
+.chatView {
+  position: relative;
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+
+  & > :first-child {
+    flex: 1 1 0;
+    min-block-size: 0;
+  }
+
+  & > .column {
+    flex: 0 0 auto;
+  }
+
+  align-items: center;
+  gap: var(--squire-space-2);
+  min-height: 0;
+  padding-block-end: var(--squire-space-3);
+  padding-inline: var(--squire-space-2);
+}
+
+.chatView[data-mode="conversation"] {
+  padding-block-start: var(--squire-space-4);
+}
+
+.homeIntro {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: var(--squire-space-3);
+  inline-size: min(100%, var(--chat-column-width));
+  min-block-size: 0;
+  padding-block-start: var(--squire-space-12);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.homeMark {
+  inline-size: var(--chat-home-mark-size);
+  block-size: var(--chat-home-mark-size);
+  color: var(--base);
+}
+
+.greeting {
+  font: var(--chat-greeting-font);
+  text-wrap: balance;
+  white-space: normal;
+}
+
+.greetingWord {
+  display: inline-block;
+  margin-inline-end: var(--squire-space-half);
+  animation: chat-greeting-word-in
+    calc(var(--squire-duration-switch) + var(--squire-duration-fast) / 4) var(--chat-motion-easing)
+    both;
+
+  &:nth-child(2) {
+    animation-delay: calc(var(--squire-duration-fast) * 3 / 8);
+  }
+
+  &:nth-child(3) {
+    animation-delay: calc(var(--squire-duration-fast) * 3 / 4);
+  }
+}
+
+@keyframes chat-greeting-word-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--squire-space-1));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .greetingWord {
+    animation: none;
+  }
+}
+
+/* Let the transcript scroll independently above the persistent composer. Its loading and
+   pending states affect only this content pane, never the composer. */
+.conversationContent {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  min-inline-size: 0;
+  min-block-size: 0;
+  transition: opacity var(--squire-duration-reveal) ease;
+
+  & > .transcriptScroll {
+    flex: 1 1 0;
+    min-block-size: 0;
+  }
+}
+
+/* Dim pending transcript content and make it inert immediately. */
+.conversationContent[data-pending] {
+  opacity: 0.5;
+}
+
+/* With reduced motion, delay the dim to avoid flashing during quick page loads. */
+@media (prefers-reduced-motion: reduce) {
+  .conversationContent {
+    transition-duration: 0s;
+  }
+
+  .conversationContent[data-pending] {
+    transition-delay: var(--squire-delay-loading);
+  }
+}
+
+.transcriptScroll {
+  /* Reserve equal scrollbar space on both sides so messages and the persistent
+     composer share the exact same horizontal centre. */
+  scrollbar-gutter: stable both-edges;
+  align-items: center;
+  align-content: start;
+  align-self: stretch;
+  overflow-x: clip;
+  /*
+   * Extend clipping bounds with negative margins and padding to preserve action backgrounds and
+   * focus rings.
+   */
+  --chat-clip-room: calc(
+    var(--chat-action-fill-spread) + var(--squire-focus-width) + var(--squire-space-1)
+  );
+  margin-inline: calc(-1 * var(--chat-clip-room));
+  padding-inline: var(--chat-clip-room);
+}
+
+.transcript {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(100%, var(--chat-column-width));
+  min-inline-size: 0;
+  /* Match the composer's maximum width. End close to the last message so the bottom of the
+     transcript is the bottom of the view. */
+  padding-block: var(--squire-space-2) var(--squire-space-3);
+  padding-inline: 0;
+  list-style: none;
+  container-type: inline-size;
+}
+
+/* Space the earlier-messages button with its message group. */
+.earlierMessages {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-block-end: var(--squire-space-3);
+}
+
+.earlierMessagesButton {
+  font: var(--text-small);
+}
+
+/* Turns ----------------------------------------------------------------- */
+
+/* Allow message grids to shrink so code blocks handle their own overflow. */
+.turn {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Space messages apart. */
+.turn + .turn {
+  padding-block-start: var(--squire-space-1);
+}
+
+/* Animate new user bubbles and queued messages; assistant answers reveal in place. */
+.turn[data-entering] > .userGroup > .userMessage,
+.turn > .userMessage[data-queued] {
+  animation: chat-enter var(--chat-motion-duration) var(--chat-motion-easing) both;
+}
+
+/* Clamp long messages with a fade and a Show more control. */
+.collapsible {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: var(--squire-space-1);
+}
+
+.collapsibleBody {
+  align-self: stretch;
+
+  &[data-collapsed] {
+    max-height: var(--chat-collapse-height);
+    overflow: clip;
+  }
+
+  &[data-collapsed][data-overflows] {
+    mask-image: linear-gradient(to bottom, black 60%, transparent);
+  }
+}
+
+.showMore {
+  padding-inline: var(--squire-space-half);
+  font: var(--text-small);
+  color: var(--shallow);
+  border-radius: var(--squire-round-sm);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--base);
+    background-color: var(--hover-state-lighter);
+  }
+
+  &:active {
+    background-color: var(--hover-state);
+  }
+}
+
+/* Stack a reply's parts in the transcript column. */
+.reply {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-half);
+  min-inline-size: 0;
+  padding-block: var(--squire-space-half);
+
+  /* Wait for the work log's fade and collapse only when handing off from an open log. */
+  &[data-handoff] {
+    --chat-reveal-wait: calc(var(--squire-duration-fast) * 2);
+  }
+}
+
+/* Stack a user message's bubble and actions, hard against the right edge. */
+.userMessage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-half);
+  align-items: end;
+  min-inline-size: 0;
+  padding-block: var(--squire-space-half);
+}
+
+/* A user message's bubble: a tinted surface that hugs its text, with the tail
+   at its foot on the side the message is aligned to. */
+.userBubble {
+  align-self: end;
+  max-width: 70%;
+  padding-block: calc(var(--squire-space-1) + var(--squire-space-half));
+  padding-inline: calc(var(--squire-space-1) + var(--squire-space-half));
+  background-color: var(--chat-user-bubble);
+  border: 1px solid var(--chat-user-bubble-stroke);
+  border-radius: var(--chat-bubble-radius);
+  border-end-end-radius: 0;
+}
+
+/* Space assistant replies and queued messages the same way. */
+.turn > .reply,
+.turn > .userMessage {
+  margin-block-start: var(--squire-space-1);
+  padding-block-start: var(--squire-space-1);
+}
+
+.messageText {
+  font: var(--text-answer);
+  line-height: var(--squire-leading-prose);
+  white-space: pre-wrap;
+  text-wrap: wrap;
+  overflow-wrap: anywhere;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Render escaped user Markdown with the shared message font. */
+.answer.userMarkdown {
+  --answer-block-gap: var(--squire-space-half);
+
+  font: var(--text-answer);
+  line-height: var(--squire-leading-prose);
+
+  & :where(h3, h4, h5, h6) {
+    padding-block-start: 0;
+  }
+
+  & pre {
+    max-inline-size: 100%;
+  }
+}
+
+.workSection {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+}
+
+.replyHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* Let assistant replies use their natural height. */
+.assistantContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--chat-interim-gap);
+  min-inline-size: 0;
+  inline-size: 100%;
+
+  &[data-empty] {
+    display: none;
+  }
+}
+
+/* The execution disclosure uses the same readable type as its timeline. */
+.workToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--squire-space-half);
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  padding-block: var(--squire-space-half);
+  padding-inline: 0;
+  font: var(--text-body);
+  font-variant-numeric: tabular-nums;
+  text-align: start;
+  color: var(--shallow);
+  border-radius: var(--squire-round-sm);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--base);
+  }
+
+  &:focus-visible {
+    outline-offset: var(--chat-action-fill-spread);
+  }
+}
+
+.workToggle[aria-expanded="true"] .workToggleCaret {
+  rotate: 90deg;
+}
+
+/* The caret follows the work status without reserving an empty leading column. */
+.workToggleMarker {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--squire-space-2);
+  block-size: var(--squire-space-2);
+}
+
+.workToggleCaret {
+  flex: none;
+  inline-size: calc(var(--squire-space-1) + var(--squire-space-quarter));
+  block-size: calc(var(--squire-space-1) + var(--squire-space-quarter));
+  transition: rotate var(--squire-duration-fast) var(--squire-easing-standard);
+}
+
+.workStatus {
+  flex: none;
+  font: var(--text-body);
+  color: inherit;
+  white-space: nowrap;
+}
+
+/*
+ * Reserve space for hidden actions and disable their pointer events. Keep actions visible on
+ * touch devices.
+ */
+.messageActions {
+  display: inline-flex;
+  flex-direction: row;
+  min-inline-size: 0;
+
+  align-items: center;
+  gap: var(--chat-action-gap);
+  block-size: var(--chat-actions-height);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--squire-duration-fast) var(--squire-easing-standard);
+
+  /* Reserve header space even when an incomplete reply has no actions. */
+  &:empty {
+    display: none;
+  }
+}
+
+/* A reply's actions sit at the start of the column, under its answer; a
+   user message's at the end, under its bubble. */
+.reply > .messageActions {
+  align-self: flex-start;
+}
+
+.reply[data-reveal] > .messageActions {
+  visibility: hidden;
+  animation: chat-actions-ready 0s linear
+    calc(var(--chat-reveal-wait, 0ms) + var(--chat-answer-reveal-duration)) forwards;
+}
+
+.userMessage > .messageActions {
+  align-self: end;
+}
+
+.reply:hover .messageActions,
+.reply:focus-within .messageActions,
+.userMessage:hover .messageActions,
+.userMessage:focus-within .messageActions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (hover: none) {
+  .messageActions {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.actionButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--squire-space-2);
+  block-size: var(--squire-space-2);
+  padding: 0;
+  color: var(--chat-text-muted);
+  border-radius: var(--squire-round-xs);
+  transition: scale var(--squire-duration-fast) var(--squire-easing-standard);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--base);
+  }
+
+  &:focus-visible {
+    outline-offset: var(--squire-space-half);
+  }
+
+  &:active:not(:disabled) {
+    scale: var(--squire-scale-press);
+  }
+
+  &:disabled {
+    opacity: var(--squire-opacity-faded);
+  }
+
+  &[data-done] {
+    color: var(--success);
+  }
+
+  & svg {
+    width: var(--squire-space-2);
+    height: var(--squire-space-2);
+  }
+}
+
+/* Inset plugin logos within the shared icon frame. */
+.toolIcon {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: var(--chat-icon-size);
+  height: var(--chat-icon-size);
+}
+
+.toolIconGlyph {
+  width: 100%;
+  height: 100%;
+}
+
+.toolIconLogo {
+  width: var(--chat-logo-inset);
+  height: var(--chat-logo-inset);
+  object-fit: contain;
+}
+
+/* Animate plugin logo parts in live activity; keep work-log icons static. */
+.toolIcon[data-motion] > .toolIconLogo {
+  transform-origin: bottom;
+  animation: chat-logo-hop var(--chat-icon-cycle) var(--chat-icon-ease) infinite;
+}
+
+.replyError {
+  font: var(--text-body);
+  color: var(--error);
+  white-space: pre-wrap;
+  text-wrap: wrap;
+  overflow-wrap: anywhere;
+}
+
+.spinner {
+  width: var(--squire-space-2);
+  height: var(--squire-space-2);
+  animation: chat-spin var(--squire-duration-spin) linear infinite;
+}
+
+.statusButton {
+  display: inline-flex;
+  flex-direction: row;
+  min-inline-size: 0;
+
+  align-items: center;
+  gap: var(--squire-space-half);
+  padding-inline: var(--squire-space-half);
+  font: var(--text-small);
+  color: var(--chat-text-muted);
+  border-radius: var(--squire-round-sm);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--base);
+    background-color: var(--hover-state-lighter);
+  }
+
+  &:active:not(:disabled) {
+    background-color: var(--hover-state);
+  }
+
+  &:disabled {
+    opacity: var(--squire-opacity-faded);
+  }
+
+  svg {
+    width: var(--squire-space-2);
+    height: var(--squire-space-2);
+  }
+}
+
+/* A queued message has not been sent yet: a dashed edge sets it apart, while
+   its actions stay at full strength and in view. */
+.userMessage[data-queued] {
+  & .userBubble {
+    border-style: dashed;
+    opacity: var(--squire-opacity-dim);
+  }
+
+  & .messageActions {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* Answer Markdown ------------------------------------------------------- */
+
+/* Keep inline text, code, and links in normal text flow. */
+.answer {
+  --answer-block-gap: calc(var(--squire-space-1) + var(--squire-space-half));
+
+  display: block;
+
+  &[hidden] {
+    display: none;
+  }
+
+  font: var(--text-body);
+  line-height: var(--squire-leading-prose);
+
+  /* Apply spacing between blocks only. */
+  &
+    > :where(
+      p,
+      ul,
+      ol,
+      blockquote,
+      pre,
+      div,
+      section,
+      article,
+      figure,
+      table,
+      form,
+      details,
+      hr,
+      h3,
+      h4,
+      h5,
+      h6
+    ):not(:first-child) {
+    margin-block-start: var(--answer-block-gap);
+  }
+}
+
+/* Reveal the fully rendered answer only after the work log has vacated its space. */
+.reply[data-reveal] .assistantContent > .answer {
+  animation: chat-answer-reveal var(--chat-answer-reveal-duration) var(--chat-motion-easing)
+    backwards;
+  animation-delay: var(--chat-reveal-wait, 0ms);
+}
+
+/* Use the larger text size only for assistant reply content. */
+.assistantContent .answer {
+  font: var(--text-answer);
+  line-height: var(--squire-leading-prose);
+}
+
+/* Use normal whitespace handling for prose and preserve whitespace in code. */
+.answer,
+.answer * {
+  white-space: normal;
+  text-wrap: wrap;
+  overflow-wrap: anywhere;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.answer {
+  /* Set list markers explicitly to avoid inheriting styles from nested turn lists. */
+  & ul,
+  & ol {
+    display: flex;
+    flex-direction: column;
+    gap: var(--squire-space-half);
+    padding-inline-start: var(--squire-space-3);
+    list-style-type: disc;
+  }
+
+  & ol {
+    list-style-type: decimal;
+  }
+
+  & li::marker {
+    color: var(--chat-text-muted);
+  }
+
+  /* Use grid gaps between list items. */
+  & li {
+    display: list-item;
+  }
+
+  & li > :where(p, ul, ol, pre, blockquote) + :where(p, ul, ol, pre, blockquote) {
+    padding-block-start: var(--squire-space-half);
+  }
+
+  & li[data-task] {
+    list-style-type: none;
+  }
+
+  & li[data-task] > input,
+  & li[data-task] > p > input {
+    accent-color: var(--accent);
+    vertical-align: middle;
+  }
+
+  /* Scale heading spacing with the heading size. */
+  & :where(h3, h4, h5, h6) {
+    margin-block-end: var(--squire-space-1);
+    padding-block-start: var(--squire-space-1);
+    font: var(--text-subheading);
+    font-size: 1.1em;
+    font-weight: 600;
+  }
+
+  & :where(h5, h6) {
+    font-size: 1em;
+    font-weight: 600;
+  }
+
+  & a {
+    color: light-dark(#412e76, #d0c7ff);
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
+    text-decoration-color: color-mix(in srgb, currentColor, transparent 70%);
+
+    &:hover {
+      color: var(--accent);
+    }
+  }
+
+  /* Mark web links without changing app routes, local files, or link text. */
+  & a[href][target="_blank"]::after {
+    content: "";
+    position: static;
+    inset: auto;
+    display: inline-block;
+    inline-size: 0.7em;
+    block-size: 0.7em;
+    margin-inline-start: 0.18em;
+    vertical-align: -0.02em;
+    background-color: currentColor;
+    opacity: 0.55;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6'/%3E%3Cpath d='m10 14 11-11'/%3E%3Cpath d='M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+  }
+
+  /* Show unresolved relative paths as plain text. */
+  & a:not([href]) {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Explain failed file opens in the tooltip. */
+  & a[data-open-error] {
+    text-decoration-style: wavy;
+    text-decoration-color: var(--danger, currentColor);
+  }
+
+  & del {
+    color: var(--chat-text-muted);
+  }
+
+  & blockquote {
+    display: flex;
+    flex-direction: column;
+    gap: var(--squire-space-1);
+    padding-block: var(--squire-space-1);
+    color: var(--shallow);
+    font-style: italic;
+  }
+
+  & hr {
+    border: 0;
+    block-size: var(--squire-space-2);
+    background: linear-gradient(var(--line-highlight), var(--line-highlight)) center / 100% 1px
+      no-repeat;
+  }
+
+  & :not(pre) > code {
+    font: var(--log-font);
+  }
+
+  /* Preserve code lines and scroll horizontally. */
+  & pre,
+  & pre * {
+    white-space: pre;
+    text-wrap: nowrap;
+    overflow-wrap: normal;
+  }
+
+  & pre {
+    padding-block: calc(var(--squire-space-1) + var(--squire-space-half));
+    overflow-x: auto;
+    font: var(--log-font);
+    line-height: var(--squire-leading-code);
+  }
+
+  & pre code {
+    font: inherit;
+  }
+
+  /* Keep fenced code and its copy control together on a subtle surface. */
+  & [data-code-block] {
+    min-inline-size: 0;
+    background-color: var(--hover-state-lighter);
+    border-radius: var(--squire-round-sm);
+    overflow: hidden;
+  }
+
+  & [data-code-header] {
+    display: flex;
+    align-items: center;
+    gap: var(--squire-space-1);
+    padding-block: var(--squire-space-half);
+  }
+
+  & [data-code-language] {
+    flex: 1 1 0;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font: var(--text-small);
+    color: var(--chat-text-muted);
+  }
+
+  & [data-copy-code] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-inline-start: auto;
+    inline-size: var(--squire-space-4);
+    block-size: var(--squire-space-4);
+    color: var(--chat-text-muted);
+
+    &:hover,
+    &:focus-visible {
+      color: var(--base);
+    }
+
+    &:active:not(:disabled) {
+      scale: var(--squire-scale-press);
+    }
+
+    &[data-done] {
+      color: var(--success);
+    }
+
+    & svg {
+      inline-size: var(--squire-space-2);
+      block-size: var(--squire-space-2);
+    }
+  }
+
+  & [data-code-block] pre {
+    background: none;
+    padding-inline: var(--squire-space-2);
+  }
+
+  & [data-code-block] [data-code-header] {
+    padding-inline: var(--squire-space-2);
+  }
+
+  /* Scroll wide tables in a keyboard-focusable wrapper with block padding. */
+  & [data-table] {
+    overflow-x: auto;
+    padding-block: var(--squire-space-2);
+
+    &:focus-visible {
+      outline: var(--squire-focus-ring);
+      outline-offset: var(--squire-space-quarter);
+    }
+  }
+
+  /* Use a stronger header divider and omit the last body divider. */
+  & table {
+    min-inline-size: max(100%, 38rem);
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /*
+   * Reserve one third of the table for the first column. Keep specificity low so table variants
+   * can override it.
+   */
+  & :where(table th:first-child, table td:first-child) {
+    inline-size: 30%;
+  }
+
+  & th,
+  & td {
+    padding-block: var(--squire-space-half);
+    padding-inline: var(--squire-space-1);
+    border-block-end: var(--squire-surface-stroke) solid var(--fainter-stroke);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  & th {
+    border-block-end-color: var(--line-highlight);
+    font-weight: 600;
+  }
+
+  & tbody tr:last-child > th,
+  & tbody tr:last-child > td {
+    border-block-end: 0;
+  }
+
+  /* Keep words readable and wrap long identifiers when needed. */
+  & :where(th, td) {
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+
+  & th,
+  & td {
+    &[style*="right"] {
+      text-align: end;
+    }
+
+    &[style*="center"] {
+      text-align: center;
+    }
+  }
+}
+
+/* Override operator colors without changing other syntax roles. */
+:global(:root[data-color-scheme="light"]) .answer [data-syntax="operator"] {
+  color: var(--shallow);
+}
+
+/* Composer -------------------------------------------------------------- */
+
+.composer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The two optional composer indicators share a single row, rather than
+   positioning independently at opposite sides of the composer. */
+.composerIndicators {
+  position: absolute;
+  inset-block-end: calc(100% + var(--squire-space-1));
+  inset-inline-start: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--squire-space-1);
+  max-inline-size: 100%;
+  z-index: var(--squire-z-overlay);
+}
+
+.composerResource {
+  flex: none;
+}
+
+.composerError {
+  font: var(--text-small);
+  color: var(--error);
+  white-space: pre-wrap;
+  text-wrap: wrap;
+  overflow-wrap: anywhere;
+}
+
+.composerStatus {
+  font: var(--text-small);
+  color: var(--chat-text-muted);
+}
+
+/* Keep job controls visually attached to the composer without changing its height. */
+.backgroundJobs {
+  position: relative;
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  align-items: flex-start;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.backgroundJobsPanel {
+  position: absolute;
+  inset-inline-start: 0;
+  bottom: calc(100% + var(--squire-space-1));
+  inline-size: min(36rem, calc(100dvw - 2 * var(--squire-space-3)));
+  min-inline-size: 0;
+  max-block-size: min(40dvh, calc(var(--squire-space-17) * 3));
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid var(--line-highlight);
+  border-radius: var(--squire-round-lg);
+  background: var(--foreground);
+  box-shadow: 0 var(--squire-space-2) var(--squire-space-5)
+    color-mix(in srgb, var(--background) 70%, transparent);
+}
+
+.backgroundJobsPanel[hidden] {
+  display: none;
+}
+
+.backgroundJobList {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.backgroundJob {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--squire-space-1) + var(--squire-space-quarter));
+  min-inline-size: 0;
+  min-block-size: calc(var(--squire-space-4) + var(--squire-space-3));
+  padding-block: calc(var(--squire-space-1) + var(--squire-space-quarter));
+  padding-inline: calc(var(--squire-space-2) - var(--squire-space-quarter))
+    calc(var(--squire-space-1) - var(--squire-space-quarter));
+  font: var(--text-small);
+
+  & + & {
+    border-block-start: 1px solid var(--fainter-stroke);
+  }
+}
+
+.backgroundJobRowIcon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  inline-size: var(--squire-space-2);
+  block-size: var(--squire-space-2);
+  color: var(--shallow);
+
+  & .toolIcon {
+    inline-size: var(--squire-space-2);
+    block-size: var(--squire-space-2);
+  }
+}
+
+.backgroundJobMain {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: var(--squire-space-quarter);
+  min-inline-size: 0;
+}
+
+.backgroundJobLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font: var(--text-body);
+  color: var(--base);
+}
+
+.backgroundJobTime {
+  flex: none;
+  max-inline-size: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font: var(--text-small);
+  font-variant-numeric: tabular-nums;
+  color: var(--faint);
+}
+
+.backgroundJobStop {
+  display: grid;
+  place-items: center;
+  flex: none;
+  inline-size: calc(var(--squire-space-3) + var(--squire-space-half));
+  block-size: calc(var(--squire-space-3) + var(--squire-space-half));
+  color: var(--shallow);
+  background: transparent;
+  border: 0;
+  border-radius: var(--squire-round-sm);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--base);
+    background: var(--hover-state-lighter);
+  }
+
+  &:disabled {
+    opacity: var(--squire-opacity-faded);
+  }
+
+  & svg {
+    inline-size: var(--squire-space-2);
+    block-size: var(--squire-space-2);
+  }
+}
+
+.backgroundJobsNote {
+  padding-block: 0 calc(var(--squire-space-1) + var(--squire-space-half));
+  padding-inline: calc(var(--squire-space-2) - var(--squire-space-quarter));
+  color: var(--faint);
+  font: var(--text-small);
+  white-space: normal;
+  text-wrap: wrap;
+}
+
+.backgroundJobPills {
+  display: flex;
+  align-items: center;
+  gap: var(--squire-space-1);
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.backgroundJobTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--squire-space-1);
+  block-size: calc(var(--squire-space-4) + var(--squire-space-quarter));
+  max-inline-size: 100%;
+  padding-inline: var(--squire-space-1);
+  border: 1px solid var(--line-highlight);
+  border-radius: var(--squire-round-md);
+  background: var(--foreground);
+  color: var(--shallow);
+  font: var(--text-small);
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--faint);
+  }
+
+  &:focus-visible {
+    outline: var(--squire-focus-width) solid var(--accent);
+    outline-offset: var(--squire-space-quarter);
+  }
+}
+
+.backgroundJobClock {
+  flex: none;
+  inline-size: var(--squire-space-2);
+  block-size: var(--squire-space-2);
+}
+
+.backgroundJobTriggerLabel {
+  flex: 0 1 auto;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  color: transparent;
+  background-image: linear-gradient(
+    90deg,
+    var(--base) 0%,
+    var(--base) 35%,
+    color-mix(in srgb, var(--base) 40%, var(--background)) 50%,
+    var(--base) 65%,
+    var(--base) 100%
+  );
+  background-size: 250% 100%;
+  background-clip: text;
+  animation: chat-shimmer var(--chat-shimmer-duration) linear infinite;
+}
+
+.backgroundJobAvatars {
+  display: flex;
+  align-items: center;
+  padding-inline-start: var(--squire-space-half);
+}
+
+.backgroundJobAvatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  inline-size: calc(var(--squire-space-2) + var(--squire-space-half) + var(--squire-space-quarter));
+  block-size: calc(var(--squire-space-2) + var(--squire-space-half) + var(--squire-space-quarter));
+  border: 1px solid var(--faint);
+  border-radius: var(--squire-round-full);
+  background: var(--foreground);
+  overflow: hidden;
+
+  & + & {
+    margin-inline-start: calc(-1 * (var(--squire-space-half) + var(--squire-space-quarter)));
+  }
+
+  & .toolIcon {
+    inline-size: var(--squire-space-2);
+    block-size: var(--squire-space-2);
+  }
+}
+
+.backgroundJobCount {
+  flex: none;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.backgroundJobCaret {
+  flex: none;
+  inline-size: var(--squire-space-1);
+  block-size: var(--squire-space-1);
+  rotate: 90deg;
+  transition: rotate var(--squire-duration-fast) var(--squire-easing-standard);
+
+  .backgroundJobTrigger[aria-expanded="true"] & {
+    rotate: -90deg;
+  }
+}
+
+@media (pointer: coarse) {
+  .backgroundJobStop {
+    inline-size: var(--squire-target-min);
+    block-size: var(--squire-target-min);
+  }
+}
+
+/* Use an accent underline for focus. */
+.composerField {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  & > :nth-child(1) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  align-items: end;
+  gap: var(--squire-space-1);
+  padding-block-end: var(--squire-space-1);
+  border-block-end: var(--squire-focus-width) solid var(--chat-composer-rule);
+
+  &:has(.composerInput:focus-visible) {
+    border-block-end-color: var(--accent);
+  }
+}
+
+/* Draw the existing underline from the left on the first composer mount. Keep focus
+   and drag colors intact while the normal border is temporarily transparent. */
+.composer[data-entrance] .composerField {
+  border-block-end-color: transparent;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    block-size: var(--squire-focus-width);
+    background: var(--chat-composer-rule);
+    transform-origin: left center;
+    pointer-events: none;
+    animation: chat-composer-rule-in var(--squire-duration-switch) var(--chat-motion-easing) both;
+  }
+
+  &:has(.composerInput:focus-visible)::after {
+    background: var(--accent);
+  }
+}
+
+.composer[data-entrance][data-dragging] .composerField::after {
+  background: var(--accent);
+}
+
+/* Controls appear only after the underline finishes drawing. */
+.composer[data-entrance] :is(.composerSend, .composerTools) {
+  animation: chat-composer-actions-in var(--squire-duration-fast) var(--chat-motion-easing)
+    var(--squire-duration-switch) both;
+}
+
+@keyframes chat-composer-rule-in {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes chat-composer-actions-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .composer[data-entrance] .composerField::after,
+  .composer[data-entrance] :is(.composerSend, .composerTools) {
+    animation: none;
+  }
+}
+
+.composerInput {
+  field-sizing: content;
+  /* Override InnateTextarea's minimum inline size. */
+  min-height: var(--squire-space-4);
+  min-block-size: var(--squire-space-4);
+  max-height: calc(var(--squire-space-17) * 1.5);
+  padding-block: var(--squire-space-half);
+  padding-inline: 0;
+  font: var(--text-body);
+  color: var(--base);
+  white-space: pre-wrap;
+  text-wrap: wrap;
+  resize: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  outline: none;
+  background: none;
+
+  &::placeholder {
+    color: var(--chat-text-placeholder);
+  }
+}
+
+.composerSend {
+  display: flex;
+  flex: none;
+  align-items: center;
+}
+
+.sendButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: var(--squire-space-4);
+  height: var(--squire-space-4);
+  color: var(--base);
+  border-radius: var(--squire-round-sm);
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--hover-state-lighter);
+  }
+
+  &:active:not(:disabled) {
+    background-color: var(--hover-state);
+    scale: var(--squire-scale-press);
+  }
+
+  &:disabled {
+    opacity: var(--squire-opacity-faded);
+  }
+
+  svg {
+    width: var(--squire-space-3);
+    height: var(--squire-space-3);
+  }
+}
+
+/* Match the Stop loader to the Send button size. */
+.stopLoader {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: var(--squire-space-4);
+  height: var(--squire-space-4);
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: var(--chat-loader-stroke) solid transparent;
+    border-radius: var(--squire-round-full);
+    pointer-events: none;
+  }
+
+  &::before {
+    border-color: var(--hover-state);
+  }
+
+  &::after {
+    border-block-start-color: var(--base);
+    animation: chat-spin var(--squire-duration-spin) linear infinite;
+  }
+}
+
+/* Inset the glyph within the loader ring. */
+.stopButton {
+  border-radius: var(--squire-round-full);
+
+  svg {
+    width: var(--squire-space-2);
+    height: var(--squire-space-2);
+  }
+}
+
+.composerTools {
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  align-items: center;
+  padding-top: 0.75rem;
+  gap: var(--squire-space-2);
+}
+
+.attachButton {
+  display: inline-flex;
+  flex-direction: row;
+  min-inline-size: 0;
+
+  align-items: center;
+  justify-content: center;
+  gap: var(--squire-space-half);
+  min-inline-size: var(--squire-space-4);
+  min-block-size: var(--squire-space-4);
+  font: var(--text-body);
+  color: var(--chat-text-muted);
+  border-radius: var(--squire-round-sm);
+  padding-inline: var(--squire-space-1);
+  translate: calc(var(--squire-space-1) * -1);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--base);
+    background-color: var(--hover-state-lighter);
+  }
+
+  &:active:not(:disabled) {
+    scale: var(--squire-scale-press);
+  }
+
+  &:disabled {
+    opacity: var(--squire-opacity-faded);
+  }
+
+  & svg {
+    inline-size: var(--squire-space-2);
+    block-size: var(--squire-space-2);
+  }
+}
+
+.modelName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--shallow);
+}
+
+/* Truncate the model name while preserving the effort label. */
+.modelLabel {
+  display: flex;
+  align-items: baseline;
+  gap: var(--squire-space-half);
+  min-inline-size: 0;
+  white-space: nowrap;
+}
+.modelEffort {
+  flex-shrink: 0;
+  color: var(--shallow);
+  opacity: 0.75;
+  &::before {
+    content: "·";
+    margin-inline-end: var(--squire-space-half);
+  }
+}
+
+/* Indicate drag targets with an underline that does not affect layout. */
+.composer[data-dragging] .composerField {
+  border-block-end-color: var(--accent);
+}
+
+/* Chat sidebar ---------------------------------------------------------- */
+
+/* Give FadeScroll a definite height and keep the account row at the bottom. */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-quarter);
+
+  & > .historyScroll {
+    flex: 1 1 0;
+    min-block-size: 0;
+  }
+
+  height: calc(100dvh - var(--squire-space-8) - var(--squire-space-1));
+}
+
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-half);
+  min-width: 0;
+  padding-block-end: var(--squire-space-2);
+  padding-inline: 0;
+  list-style: none;
+}
+
+.historyScroll {
+  overflow-x: clip;
+}
+
+/* Mute date-group headings. */
+.historyGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-half);
+  min-width: 0;
+}
+
+.historyGroupList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-half);
+  min-width: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.historyHeading {
+  padding-block: var(--squire-space-2) var(--squire-space-half);
+  padding-inline: var(--squire-space-1);
+  font: var(--text-small);
+  color: var(--chat-text-muted);
+}
+
+/* Overlap row links and actions in the same grid area. */
+.historyItem {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  & > :nth-child(1) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  min-width: 0;
+}
+
+.historyButton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-text-gap);
+  min-width: 0;
+  padding: var(--squire-space-1);
+  /* Cut the preview earlier than the title so rows do not read to the edge. */
+  padding-inline-end: var(--squire-space-2);
+  color: inherit;
+  text-align: start;
+  text-decoration: none;
+  border-radius: var(--squire-round-sm);
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--hover-state-lighter);
+  }
+
+  &:focus-visible {
+    outline-offset: calc(var(--squire-focus-width) * -1);
+  }
+
+  &:active,
+  &[data-selected] {
+    background-color: var(--hover-state);
+  }
+
+  /* Disable interaction while a row is being deleted. */
+  &[aria-disabled="true"] {
+    opacity: var(--squire-opacity-faded);
+    pointer-events: none;
+  }
+}
+
+/* Hide visually while retaining accessible text. */
+.srOnly {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.historyStatus {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.historyError {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-1);
+  align-items: start;
+  padding: var(--squire-space-1);
+  font: var(--text-small);
+  color: var(--error);
+
+  & p {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
+.historyTitle {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--squire-space-half);
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.historyTitleText {
+  flex: 1 1 0;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.historyIndicators {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--squire-space-1);
+  margin-inline-start: auto;
+}
+
+.historyBrowser {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--squire-space-half);
+  flex: none;
+  color: var(--chat-text-muted);
+}
+.historyBrowser svg {
+  inline-size: var(--squire-space-2);
+  block-size: var(--squire-space-2);
+}
+.historyBrowserDot {
+  display: block;
+  inline-size: calc(var(--squire-space-1) - var(--squire-space-quarter));
+  block-size: calc(var(--squire-space-1) - var(--squire-space-quarter));
+  border-radius: var(--squire-round-full);
+  background: var(--success);
+}
+
+.historySpinner {
+  width: calc(var(--squire-space-1) + var(--squire-space-half));
+  height: calc(var(--squire-space-1) + var(--squire-space-half));
+  animation: chat-spin var(--squire-duration-spin) linear infinite;
+}
+
+.historyPreview {
+  min-height: 1lh;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: var(--text-small);
+  color: var(--chat-text-muted);
+}
+
+/* Icons ----------------------------------------------------------------- */
+
+@keyframes chat-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes chat-logo-hop {
+  0%,
+  50%,
+  88%,
+  100% {
+    transform: none;
+  }
+  62% {
+    transform: translateY(-14%);
+    animation-timing-function: ease-in;
+  }
+  72% {
+    transform: scale(1.06, 0.92);
+  }
+  80% {
+    transform: scale(0.98, 1.03);
+  }
+}
+
+@keyframes chat-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--squire-space-2));
+  }
+}
+
+@keyframes chat-answer-reveal {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0);
+  }
+}
+
+@keyframes chat-actions-ready {
+  to {
+    visibility: visible;
+  }
+}
+
+/* Animate a background 2.5 times the text width from 100% to 0%. */
+@keyframes chat-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .messageActions,
+  .actionButton,
+  .workToggleCaret,
+  .editCancel,
+  .editSubmit,
+  .attachRemove {
+    transition: none;
+  }
+
+  .actionButton:active,
+  .attachButton:active,
+  .sendButton:active,
+  .editCancel:active,
+  .editSubmit:active {
+    scale: none;
+  }
+
+  .spinner,
+  .stopLoader::after,
+  .historySpinner,
+  .modelPickerReasoningSpinner,
+  .toolIcon[data-motion] > .toolIconLogo,
+  .turn[data-entering] > .userGroup > .userMessage,
+  .turn > .userMessage[data-queued],
+  .reply[data-reveal] .assistantContent > .answer {
+    animation: none;
+  }
+
+  .reply[data-reveal] > .messageActions {
+    visibility: visible;
+    animation: none;
+  }
+
+  .backgroundJobTriggerLabel {
+    color: var(--base);
+    background-image: none;
+    animation: none;
+  }
+}
+
+/* User messages ---------------------------------------------------------- */
+
+/* Group consecutive user messages within a turn. The group spans the column so
+   each bubble's 70% cap is measured against it, once; the bubble itself is what
+   hugs its text and sits at the end. */
+.userGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-half);
+  min-inline-size: 0;
+
+  &:empty {
+    display: none;
+  }
+}
+
+/* Keep the inline editor where the bubble was, with its buttons under it. It
+   spans the row for the same reason the group does: the bubble inside it caps
+   against the row, never against the form's own shrink-to-fit width. */
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-half);
+  align-items: end;
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+/* Editing happens in the bubble the message was read in: the same surface in
+   the same spot, whose frame takes the accent while the draft has focus. */
+.editBubble {
+  &:focus-within {
+    border-color: var(--accent);
+  }
+}
+
+/* Grow the textarea with its contents up to half the viewport, then scroll. */
+.editInput {
+  /* Remove the inline baseline gap beneath the textarea. */
+  display: block;
+  field-sizing: content;
+  /* Override InnateTextarea's minimum inline size. */
+  min-height: 1lh;
+  min-block-size: 1lh;
+  max-height: 50dvh;
+  max-block-size: 50dvh;
+  /* field-sizing makes it as wide as the text it holds; wrap at the bubble's cap. */
+  max-width: 100%;
+  max-inline-size: 100%;
+  min-width: 2ch;
+  min-inline-size: 2ch;
+  padding: 0;
+  font: var(--text-answer);
+  /* Match the displayed message's line height while editing. */
+  line-height: var(--squire-leading-prose);
+  color: var(--base);
+  white-space: pre-wrap;
+  text-wrap: wrap;
+  overflow-wrap: anywhere;
+  resize: none;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+
+  /* Use the editor frame as the focus indicator. */
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+/* Cancel and Send take the message's own actions row: the same height, with the
+   buttons centered in it, so opening or closing the editor never moves the
+   messages under it. */
+.editActions {
+  display: inline-flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  block-size: var(--chat-actions-height);
+
+  align-items: center;
+  gap: var(--squire-space-half);
+}
+
+.editCancel,
+.editSubmit {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  block-size: 100%;
+  min-height: 0;
+  padding-inline: calc(var(--squire-space-1) + var(--squire-space-half));
+  font: var(--text-small);
+  border-radius: var(--squire-round-md);
+  transition: scale var(--squire-duration-fast) var(--squire-easing-standard);
+
+  &:active:not(:disabled) {
+    scale: var(--squire-scale-press-soft);
+  }
+
+  &:disabled {
+    opacity: var(--squire-opacity-faded);
+  }
+
+  &:focus-visible {
+    outline: var(--squire-focus-ring);
+    outline-offset: var(--squire-space-quarter);
+  }
+}
+
+.editCancel {
+  color: var(--base);
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    background-color: var(--hover-state);
+  }
+}
+
+/* Invert colors for the primary editing action. */
+.editSubmit {
+  color: var(--background);
+  background-color: var(--base);
+
+  &:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--base) 86%, var(--background));
+  }
+}
+
+/* Use a focus underline when renaming history entries. */
+.historyRename {
+  background-color: var(--hover-state);
+}
+
+.historyTitleInput {
+  min-width: 0;
+  width: 100%;
+  padding: 0;
+  font: inherit;
+  color: var(--base);
+  background: none;
+  border: 0;
+  border-radius: 0;
+
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+.historyPreview[data-error] {
+  color: var(--error);
+}
+
+.historyMenuTrigger {
+  min-inline-size: 0;
+  inline-size: 100%;
+}
+
+/* The history context menu is placed in the modal sidebar on mobile. */
+.historyActionsMenu {
+  position: fixed;
+  inset: auto;
+  z-index: var(--squire-z-overlay);
+  display: flex;
+  flex-direction: column;
+  min-inline-size: calc(var(--squire-space-17) * 1.1);
+  max-inline-size: calc(100dvw - var(--squire-space-2));
+  gap: var(--squire-space-quarter);
+  margin: 0;
+  padding: var(--squire-space-half);
+  overflow: visible;
+  border: var(--squire-surface-stroke) solid var(--fainter-stroke);
+  border-radius: var(--squire-round-md);
+  background: var(--innate-color-base);
+  color: var(--innate-color-text);
+  box-shadow: var(--innate-shadow-tooltip-stack);
+  font: var(--text-small);
+}
+
+.historyActionsMenu:not(:popover-open) {
+  display: none;
+}
+
+.historyMenuItem {
+  display: flex;
+  align-items: center;
+  inline-size: 100%;
+  min-block-size: var(--squire-space-4);
+  gap: var(--squire-space-1);
+  padding-inline: var(--squire-space-1);
+  border: 0;
+  border-radius: var(--squire-round-sm);
+  background: transparent;
+  color: inherit;
+  font: var(--text-small);
+  text-align: start;
+  cursor: pointer;
+
+  & svg {
+    inline-size: var(--squire-space-2);
+    block-size: var(--squire-space-2);
+  }
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    background: var(--hover-state-lighter);
+  }
+
+  &:active:not(:disabled) {
+    background: var(--hover-state);
+  }
+
+  &:focus-visible {
+    outline: var(--squire-focus-ring);
+    outline-offset: calc(var(--squire-space-quarter) * -1);
+  }
+
+  &:disabled {
+    opacity: var(--squire-opacity-faded);
+    cursor: default;
+  }
+
+  &[data-tone="danger"] {
+    color: var(--error);
+  }
+}
+
+.historyMenuError {
+  padding-inline: var(--squire-space-1);
+  font: var(--text-small);
+  color: var(--error);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.searchShortcut {
+  font: var(--text-small);
+  color: var(--chat-text-muted);
+  border: 1px solid var(--fainter-stroke);
+  border-radius: var(--squire-round-sm);
+  padding-inline: var(--squire-space-half);
+}
+
+/* Apply one focus ring to the search container. */
+.searchDialog {
+  inline-size: min(var(--chat-search-width), calc(100dvw - var(--squire-space-4)));
+  padding: 0;
+}
+
+.searchPalette {
+  display: flex;
+  flex-direction: column;
+  & > :nth-child(2) {
+    flex: 1 1 0;
+    min-block-size: 0;
+  }
+
+  block-size: min(var(--chat-search-height), calc(100dvh - var(--squire-space-8)));
+}
+
+.searchField {
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  & > :nth-child(2) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  align-items: center;
+  gap: var(--squire-space-1);
+  padding: var(--squire-space-2);
+  border-block-end: 1px solid var(--fainter-stroke);
+  border-start-start-radius: calc(var(--squire-round-lg) - var(--squire-surface-stroke));
+  border-start-end-radius: calc(var(--squire-round-lg) - var(--squire-surface-stroke));
+
+  &:focus-within {
+    border-color: var(--accent);
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+
+  & svg {
+    inline-size: var(--squire-space-2);
+    block-size: var(--squire-space-2);
+    color: var(--chat-text-muted);
+  }
+
+  & input {
+    min-width: 0;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    outline: 0;
+    box-shadow: none;
+    background: transparent;
+    color: var(--base);
+    font: var(--text-body);
+
+    &::placeholder {
+      color: var(--chat-text-placeholder);
+    }
+
+    &:focus-visible {
+      outline: 0;
+      box-shadow: none;
+    }
+
+    &::-webkit-search-cancel-button {
+      display: none;
+    }
+  }
+}
+
+.searchClear {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--squire-space-4);
+  block-size: var(--squire-space-4);
+  color: var(--chat-text-muted);
+  border-radius: var(--squire-round-full);
+
+  &:hover,
+  &:focus-visible {
+    background: var(--hover-state-lighter);
+    color: var(--base);
+  }
+
+  &:active {
+    background: var(--hover-state);
+  }
+
+  &[disabled] {
+    visibility: hidden;
+  }
+
+  & svg {
+    inline-size: var(--squire-space-2);
+    block-size: var(--squire-space-2);
+  }
+}
+
+.searchResults {
+  display: flex;
+  flex-direction: column;
+
+  justify-content: start;
+  gap: var(--squire-space-half);
+  min-block-size: 0;
+  overflow-y: auto;
+  overflow-x: clip;
+  scrollbar-gutter: stable;
+  margin: 0;
+  padding: var(--squire-space-1);
+  list-style: none;
+}
+
+.searchGroupLabel {
+  padding-block: var(--squire-space-1) var(--squire-space-half);
+  padding-inline: var(--squire-space-1);
+  font: var(--text-subheading);
+  color: var(--chat-text-muted);
+}
+
+.searchRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-text-gap);
+  width: 100%;
+  min-width: 0;
+  padding: var(--squire-space-1);
+  text-align: start;
+  border-radius: var(--squire-round-sm);
+
+  &:hover {
+    background-color: var(--hover-state-lighter);
+  }
+
+  &:active,
+  &[data-active] {
+    background-color: var(--hover-state);
+  }
+
+  /* Mark the active result while keyboard focus stays in the input. */
+  &[data-active] {
+    outline: var(--squire-focus-ring);
+    outline-offset: calc(var(--squire-focus-width) * -1);
+  }
+}
+
+.searchRowTitle {
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+
+  justify-content: start;
+  align-items: center;
+  gap: var(--squire-space-half);
+  min-width: 0;
+  font: var(--text-body);
+}
+
+.searchRowTitleText {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.searchRowPreview {
+  min-height: 1lh;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: var(--text-small);
+  color: var(--chat-text-muted);
+}
+
+.searchMark {
+  font-weight: 600;
+  color: inherit;
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+  border-radius: var(--squire-round-xs);
+}
+
+.searchEmpty {
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+
+  justify-content: start;
+  align-items: center;
+  gap: var(--squire-space-1);
+  padding: var(--squire-space-2) var(--squire-space-1);
+  font: var(--text-small);
+  color: var(--chat-text-muted);
+
+  &:only-child {
+    flex: 1 1 0;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+.searchLoading {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  color: var(--chat-text-muted);
+}
+/*
+ * Use equal-height image and file tiles in a horizontally scrolling shelf. Let FadeScroll hide
+ * the empty shelf.
+ */
+.attachmentShelf {
+  scrollbar-width: none;
+  /*
+   * Pin vertical overflow to avoid fractional scrolling when horizontal overflow becomes
+   * scrollable.
+   */
+  overflow-y: hidden;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &:not(:has(li)) {
+    display: none;
+  }
+}
+
+/* Reserve room for the overhanging remove badge. */
+.attachmentList {
+  display: flex;
+  flex-direction: row;
+
+  justify-content: start;
+  align-items: center;
+  gap: var(--squire-space-1);
+  padding-block: var(--squire-space-1);
+  padding-inline: 0 var(--squire-space-1);
+  list-style: none;
+}
+
+/* Fix image tile dimensions to avoid intrinsic sizing; allow wider file cards. */
+.attachThumb {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+
+  /* Position the remove badge relative to the tile. */
+  position: relative;
+  inline-size: var(--squire-space-8);
+  block-size: var(--squire-space-8);
+
+  &[data-kind="file"] {
+    inline-size: calc(var(--squire-space-17) * 2);
+  }
+
+  & > .attachPreview {
+    inline-size: 100%;
+    block-size: 100%;
+    min-inline-size: 0;
+    min-block-size: 0;
+  }
+}
+
+.attachPreview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: clip;
+  border: 1px solid var(--line-highlight);
+  border-radius: var(--squire-round-lg);
+  background-color: var(--foreground);
+  color: var(--chat-text-muted);
+
+  & img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  & svg {
+    inline-size: var(--squire-space-2);
+    block-size: var(--squire-space-2);
+  }
+}
+
+/* Keep file metadata on one line and truncate the name beside the file-type icon. */
+.attachFile {
+  flex-direction: row;
+  justify-content: start;
+  gap: var(--squire-space-1);
+  padding-inline: var(--squire-space-1) var(--squire-space-2);
+}
+
+.attachFileIcon {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--squire-space-5);
+  block-size: var(--squire-space-5);
+  border-radius: var(--squire-round-md);
+  background-color: var(--hover-state-lighter);
+  color: var(--chat-text-muted);
+}
+
+.attachFileText {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-inline-size: 0;
+  gap: var(--squire-space-quarter);
+}
+
+.attachFileName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: var(--text-body);
+  color: var(--base);
+}
+
+.attachFileMeta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: var(--text-small);
+  color: var(--chat-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Place the remove badge over the tile corner. Reveal it on hover with colors readable over
+ * images.
+ */
+.attachRemove {
+  position: absolute;
+  inset-block-start: calc(var(--squire-space-half) * -1.5);
+  inset-inline-end: calc(var(--squire-space-half) * -1.5);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--squire-space-3);
+  height: var(--squire-space-3);
+  border-radius: var(--squire-round-full);
+  color: var(--chat-text-muted);
+  background-color: var(--foreground);
+  border: 1px solid var(--line-highlight);
+  opacity: 0;
+  transition: opacity var(--squire-duration-fast) var(--squire-easing-standard);
+
+  &:focus-visible {
+    outline: var(--squire-focus-ring);
+    outline-offset: 0;
+  }
+
+  & svg {
+    width: var(--squire-space-2);
+    height: var(--squire-space-2);
+  }
+}
+
+.attachThumb:hover .attachRemove:not(:disabled),
+.attachThumb:focus-within .attachRemove {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .attachRemove:not(:disabled) {
+    opacity: 1;
+  }
+}
+
+/* Expand the invisible touch target to 44px. */
+@media (pointer: coarse) {
+  .attachRemove::before {
+    content: "";
+    position: absolute;
+    inset: calc(var(--squire-space-1) * -1.25);
+    border-radius: var(--squire-round-full);
+  }
+}
+
+/* Match placeholder height to loaded tiles to avoid layout shifts. */
+.attachPending {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--squire-space-8);
+  block-size: var(--squire-space-8);
+  border: 1px dashed var(--line-highlight);
+  border-radius: var(--squire-round-lg);
+  color: var(--chat-text-muted);
+}
+/* Scrollable gallery and sent attachments reuse FadeScroll's edge fades. */
+.galleryScroll,
+.sentAttachmentScroll {
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+  overflow-y: hidden;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.sentAttachmentScroll {
+  align-self: end;
+}
+
+/* Keep sent attachments in one line, aligned to the bubble's right edge. */
+.messageAttachments {
+  display: flex;
+  flex-direction: row;
+  flex: none;
+  inline-size: max-content;
+  margin-inline-start: auto;
+  justify-content: end;
+  align-items: start;
+  gap: var(--squire-space-1);
+  padding: var(--squire-space-half);
+  list-style: none;
+
+  & > li {
+    scroll-snap-align: start;
+  }
+}
+
+.messageTile {
+  display: flex;
+  flex-direction: column;
+  & > :first-child {
+    flex: 1 1 0;
+    min-block-size: 0;
+  }
+
+  inline-size: calc(var(--squire-space-15) + var(--squire-space-4));
+  block-size: calc(var(--squire-space-15) + var(--squire-space-4));
+  overflow: clip;
+  border: 1px solid var(--line-highlight);
+  border-radius: var(--squire-round-lg);
+  color: var(--shallow);
+  text-decoration: none;
+
+  & > * {
+    min-inline-size: 0;
+    min-block-size: 0;
+  }
+
+  &:focus-visible {
+    outline: var(--squire-focus-ring);
+    outline-offset: var(--squire-space-quarter);
+  }
+
+  & img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+}
+
+/* Sent images keep the same square footprint while loading or zooming.
+   The moving frame is promoted to the top layer, not the entire scroller. */
+.messageTile[data-image] {
+  display: block;
+}
+
+/* Show an icon and filename for non-image attachments. */
+.messageTileFile {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--squire-space-1);
+  min-block-size: 0;
+  padding: var(--squire-space-1);
+  background-color: var(--foreground);
+  font: var(--text-small);
+
+  &:hover {
+    background-color: var(--hover-state-lighter);
+    color: var(--base);
+  }
+
+  & svg {
+    inline-size: var(--squire-space-3);
+    block-size: var(--squire-space-3);
+  }
+}
+
+.messageTileName {
+  max-inline-size: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.modelOptions {
+  min-width: 0;
+  margin-inline-start: auto;
+  font: var(--text-small);
+}
+.modelTrigger {
+  display: inline-flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  & > :nth-child(2) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  align-items: center;
+  gap: var(--squire-space-1);
+  padding: var(--squire-space-half) var(--squire-space-1);
+  max-inline-size: min(100%, var(--squire-popup-width-medium));
+  border-radius: var(--squire-round-sm);
+  color: var(--shallow);
+  font: var(--text-small);
+  & svg {
+    inline-size: var(--squire-space-2);
+    block-size: var(--squire-space-2);
+  }
+  & .modelTriggerCaret {
+    inline-size: var(--squire-space-1);
+    block-size: var(--squire-space-1);
+    rotate: -90deg;
+  }
+  &:hover,
+  &:focus-visible {
+    background: var(--hover-state-lighter);
+    color: var(--base);
+  }
+  &:active,
+  &[aria-expanded="true"] {
+    background: var(--hover-state);
+    color: var(--base);
+  }
+}
+/* Match the search palette's corner radius. */
+.modelPickerPopover {
+  display: flex;
+  flex-direction: column;
+
+  inline-size: min(var(--squire-popup-width-large), calc(100dvw - var(--squire-space-4)));
+  min-inline-size: 0;
+  block-size: min(var(--chat-model-picker-height), calc(100dvh - var(--squire-space-4)));
+  max-block-size: calc(100dvh - var(--squire-space-4));
+  overflow: hidden;
+  padding: 0;
+  border-radius: var(--squire-round-md);
+  background: var(--foreground);
+  box-shadow: var(--chat-picker-shadow);
+}
+.modelPicker {
+  display: flex;
+  flex-direction: column;
+  & > :nth-child(2) {
+    flex: 1 1 0;
+    min-block-size: 0;
+  }
+
+  block-size: 100%;
+  min-block-size: 0;
+  min-inline-size: 0;
+  font: var(--text-small);
+  color: var(--base);
+
+  & svg {
+    inline-size: var(--squire-space-2);
+    block-size: var(--squire-space-2);
+  }
+
+  & button:disabled {
+    opacity: var(--squire-opacity-faded);
+  }
+}
+.modelPickerControls {
+  display: flex;
+  flex-direction: column;
+
+  gap: var(--squire-space-1);
+  padding: var(--squire-space-1);
+}
+.modelPickerSearch {
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  & > :nth-child(2) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  align-items: center;
+  gap: var(--squire-space-1);
+  padding-inline: var(--squire-space-1);
+  min-block-size: var(--squire-space-5);
+  border: 1px solid var(--fainter-stroke);
+  border-radius: var(--squire-round-sm);
+  background: var(--background);
+  color: var(--shallow);
+
+  &:focus-within {
+    border-color: var(--accent);
+    outline: 1px solid var(--accent);
+    outline-offset: 0;
+  }
+
+  & input {
+    inline-size: 100%;
+    min-inline-size: 0;
+    min-block-size: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--squire-round-sm);
+    font: inherit;
+    color: var(--base);
+    background: none;
+    box-shadow: none;
+    outline: 0;
+
+    /* Apply focus styling to the container. */
+    &:focus-visible {
+      box-shadow: none;
+      outline: 0;
+    }
+  }
+}
+.modelPickerResults {
+  display: flex;
+  flex-direction: column;
+
+  justify-content: start;
+  min-block-size: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-inline: var(--squire-space-1);
+  padding-block-end: var(--squire-space-1);
+
+  & > .modelHint:only-child,
+  & > .modelPickerError:only-child {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+}
+/* Group model rows by provider. */
+.modelPickerGroups {
+  display: flex;
+  flex-direction: column;
+
+  padding: 0;
+  list-style: none;
+}
+.modelPickerGroup {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+}
+.modelPickerGroupHeading {
+  padding-block: var(--squire-space-2) var(--squire-space-half);
+  padding-inline: var(--squire-space-1);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font: var(--text-tiny);
+  color: var(--shallow);
+}
+.modelPickerGroup:first-child .modelPickerGroupHeading {
+  padding-block-start: var(--squire-space-half);
+}
+.modelPickerList {
+  display: flex;
+  flex-direction: column;
+
+  padding: 0;
+  list-style: none;
+}
+.modelPickerRow {
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  & > :nth-child(1) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  align-items: center;
+  gap: var(--squire-space-1);
+  inline-size: 100%;
+  min-block-size: var(--squire-space-5);
+  padding: var(--squire-space-1);
+  border-radius: var(--squire-round-sm);
+  text-align: start;
+
+  /* Target InnateButton's label span. */
+  & > span {
+    display: flex;
+    flex-direction: row;
+    min-inline-size: 0;
+    & > :nth-child(2) {
+      flex: 1 1 0;
+      min-inline-size: 0;
+    }
+
+    align-items: center;
+    gap: var(--squire-space-1);
+    min-inline-size: 0;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: var(--hover-state-lighter);
+  }
+
+  &:active:not(:disabled),
+  &[aria-pressed="true"] {
+    background: var(--hover-state);
+  }
+
+  & svg {
+    color: var(--accent);
+  }
+  & > span > svg {
+    color: var(--shallow);
+  }
+}
+.modelPickerRowText {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  gap: var(--squire-text-gap);
+
+  & > * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  & small {
+    font: var(--text-tiny);
+    color: var(--shallow);
+  }
+}
+.modelPickerMore,
+.modelPickerCustom,
+.modelPickerError button {
+  min-block-size: var(--squire-space-5);
+  padding: var(--squire-space-1);
+  border-radius: var(--squire-round-sm);
+  text-align: start;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--hover-state-lighter);
+  }
+
+  &:active:not(:disabled) {
+    background: var(--hover-state);
+  }
+}
+.modelPickerCustom {
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  & > :nth-child(1) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  align-items: center;
+  gap: var(--squire-space-1);
+  border-block-start: 1px solid var(--fainter-stroke);
+  border-radius: 0;
+  padding-inline: var(--squire-space-2);
+
+  & span {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  & svg {
+    rotate: 180deg;
+  }
+}
+.modelPickerFooter {
+  display: flex;
+  flex-direction: column;
+
+  border-block-start: 1px solid var(--fainter-stroke);
+
+  & .modelPickerReasoningTrigger {
+    min-block-size: var(--squire-space-5);
+    padding-inline: var(--squire-space-2);
+    border-radius: 0;
+    color: var(--shallow);
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible,
+    &[aria-expanded="true"] {
+      color: var(--base);
+      background: var(--hover-state-lighter);
+      text-decoration: none;
+    }
+
+    &:active {
+      background: var(--hover-state);
+    }
+
+    &:focus-visible {
+      outline: var(--squire-focus-ring);
+      outline-offset: -2px;
+    }
+  }
+}
+
+.modelPickerReasoningTrigger {
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+  & > :nth-child(2) {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+
+  align-items: center;
+  gap: var(--squire-space-1);
+  inline-size: 100%;
+  font: inherit;
+  text-align: start;
+  border: 0;
+  border-block-end: 1px solid var(--fainter-stroke);
+}
+
+.modelPickerReasoningValue {
+  color: var(--base);
+  white-space: nowrap;
+}
+
+.modelPickerReasoningSpinner {
+  animation: chat-spin var(--squire-duration-spin) linear infinite;
+}
+
+.modelPickerReasoningMenu {
+  inline-size: min(var(--squire-popup-width-medium), calc(100dvw - var(--squire-space-4)));
+
+  & [role="menuitemradio"] {
+    min-block-size: var(--squire-space-4);
+    padding-block: 0;
+
+    &:hover,
+    &[data-highlighted="true"] {
+      color: var(--base);
+      background: var(--hover-state-lighter);
+    }
+  }
+}
+
+.reasoningHint {
+  max-inline-size: 100%;
+  padding: var(--squire-space-1);
+  font: var(--text-small);
+  color: var(--shallow);
+  white-space: normal;
+  text-wrap: pretty;
+}
+
+.reasoningError {
+  padding: var(--squire-space-1);
+  font: var(--text-small);
+  color: var(--error);
+  overflow-wrap: anywhere;
+}
+
+.modelPickerError {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  padding: var(--squire-space-1);
+  color: var(--error);
+
+  & p {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+.modelHint {
+  padding: var(--squire-space-1);
+  color: var(--shallow);
+  white-space: normal;
+}
+.unreadMark {
+  display: inline-flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  inline-size: var(--squire-space-1);
+  block-size: var(--squire-space-1);
+  border-radius: var(--squire-round-full);
+  background: var(--accent);
+}
+.actionButton:focus-visible,
+.workToggle:focus-visible,
+.modelTrigger:focus-visible,
+.attachmentList :focus-visible,
+.messageAttachments :focus-visible {
+  outline: var(--squire-focus-ring);
+  outline-offset: var(--squire-space-quarter);
+}

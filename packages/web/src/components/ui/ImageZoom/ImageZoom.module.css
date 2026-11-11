@@ -1,0 +1,98 @@
+.frame {
+  --image-zoom-duration: 320ms;
+
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+/* Only the moving viewport enters the top layer; siblings remain clipped by FadeScroll.
+   Geometric resizing avoids the non-uniform pixel scaling of a FLIP transform. */
+.frame[data-zoom-flying] {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: clip;
+  border-radius: var(--squire-round-lg);
+}
+
+.image {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  border-radius: var(--squire-round-lg);
+  /* Crop the original image without stretching its pixels during the viewport resize. */
+  overflow: clip;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frame {
+    --image-zoom-duration: 1ms;
+  }
+}
+
+.dialog {
+  inline-size: 100vw;
+  block-size: 100dvh;
+  max-inline-size: none;
+  max-block-size: none;
+  margin: 0;
+  padding: var(--squire-space-6) var(--squire-space-3);
+  border: 0;
+  background: none;
+  cursor: zoom-out;
+  /* The app scales dialogs in; here the image's own flight is the entrance. */
+  animation: none;
+
+  &[open] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &::backdrop {
+    background-color: rgb(0 0 0 / 0.78);
+    animation: image-zoom-fade 320ms ease;
+  }
+
+  & > .frame {
+    inline-size: min(100%, calc((100dvh - var(--squire-space-6) * 2) * var(--image-zoom-ratio, 1)));
+    block-size: auto;
+    aspect-ratio: var(--image-zoom-ratio, 1);
+    max-block-size: 100%;
+  }
+}
+
+.close {
+  position: fixed;
+  inset-block-start: var(--squire-space-2);
+  inset-inline-end: var(--squire-space-2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--squire-space-4);
+  block-size: var(--squire-space-4);
+  border-radius: var(--squire-round-full);
+  background-color: rgb(255 255 255 / 0.12);
+  color: white;
+
+  & svg {
+    inline-size: var(--squire-space-2);
+    block-size: var(--squire-space-2);
+  }
+
+  &:focus-visible {
+    outline: var(--squire-focus-ring);
+  }
+}
+
+@keyframes image-zoom-fade {
+  from {
+    opacity: 0;
+  }
+}

@@ -1,0 +1,28 @@
+import { FRAME, type GlyphProps } from "./frame";
+
+import classes from "./WorkingGlyph.module.css";
+
+const LINE = {
+  stroke: "currentColor",
+  "stroke-width": "1.41449",
+  "stroke-linecap": "round",
+};
+
+/** Highlight page lines in sequence, then tilt the file icon. */
+export function FileGlyph(props: GlyphProps) {
+  const { class: className } = props;
+  return (
+    <svg {...FRAME} class={className}>
+      <g class={classes.filePage}>
+        <path
+          d="M23.6425 12.7257L17.094 6.17712H11.8551C10.6326 6.17712 10.0213 6.17712 9.55441 6.41504C9.14367 6.62431 8.80974 6.95825 8.60047 7.36899C8.36255 7.83592 8.36255 8.44719 8.36255 9.6697V22.3303C8.36255 23.5528 8.36255 24.1641 8.60047 24.631C8.80974 25.0417 9.14367 25.3757 9.55441 25.5849C10.0213 25.8228 10.6326 25.8228 11.8551 25.8228H20.15C21.3725 25.8228 21.9838 25.8228 22.4507 25.5849C22.8614 25.3757 23.1954 25.0417 23.4046 24.631C23.6425 24.1641 23.6425 23.5528 23.6425 22.3303V12.7257ZM17.094 6.17712V10.9794C17.094 11.5907 17.094 11.8963 17.2129 12.1298C17.3176 12.3351 17.4845 12.5021 17.6899 12.6067C17.9234 12.7257 18.229 12.7257 18.8403 12.7257H23.6425"
+          {...LINE}
+          stroke-linejoin="round"
+        />
+        <path class={classes.fileLine1} d="M12.7283 12.7257H13.8197" {...LINE} />
+        <path class={classes.fileLine2} d="M12.7283 17.0914H19.2768" {...LINE} />
+        <path class={classes.fileLine3} d="M12.7283 21.4571H19.2768" {...LINE} />
+      </g>
+    </svg>
+  );
+}

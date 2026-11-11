@@ -1,0 +1,36 @@
+.content {
+  inline-size: fit-content;
+  width: fit-content;
+  margin: auto;
+  max-inline-size: calc(100dvw - var(--squire-space-2));
+  max-block-size: calc(100dvh - var(--squire-space-2));
+  padding: var(--squire-space-3) var(--squire-space-2);
+  overflow: hidden;
+  border: var(--squire-surface-stroke) solid var(--line-highlight);
+  border-radius: var(--squire-round-lg);
+  background-color: var(--foreground);
+  color: var(--base);
+  box-shadow: none;
+}
+
+.content[data-size="medium"] {
+  min-inline-size: var(--squire-popup-width-medium);
+}
+
+.content[data-size="large"] {
+  min-inline-size: var(--squire-popup-width-large);
+}
+
+.content[data-size="larger"] {
+  min-inline-size: var(--squire-popup-width-larger);
+}
+
+.content::backdrop {
+  background-color: black;
+  opacity: 0.5;
+}
+
+.content > div {
+  max-block-size: none;
+  overflow: visible;
+}

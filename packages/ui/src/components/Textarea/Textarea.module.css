@@ -1,0 +1,12 @@
+.textarea {
+  inline-size: 100%;
+  min-inline-size: 0;
+  padding-inline: var(--squire-space-2);
+  padding-block: var(--squire-space-1);
+  color: var(--base);
+  font: var(--text-small);
+  background: transparent;
+  border: var(--squire-surface-stroke) solid var(--line-highlight);
+  border-radius: var(--squire-round-sm);
+  resize: vertical;
+}

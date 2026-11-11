@@ -1,0 +1,25 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--squire-space-2);
+  inline-size: 100%;
+  min-inline-size: 0;
+  text-align: center;
+  color: var(--shallow);
+  font: var(--text-body);
+
+  & span {
+    max-inline-size: 52ch;
+    white-space: normal;
+    text-wrap: balance;
+  }
+}
+
+.icon {
+  flex: none;
+  inline-size: var(--squire-space-12);
+  block-size: var(--squire-space-12);
+  opacity: 0.3;
+}

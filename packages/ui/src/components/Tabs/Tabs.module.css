@@ -1,0 +1,26 @@
+.tabs {
+  display: flex;
+  flex-direction: row;
+  min-inline-size: 0;
+
+  align-items: end;
+  gap: var(--squire-space-4);
+}
+
+.tab {
+  min-height: var(--squire-space-5);
+  padding-inline: var(--squire-space-2);
+  color: var(--shallow);
+  font: var(--text-body);
+  border-bottom: calc(var(--squire-surface-stroke) * 2) solid transparent;
+
+  &[aria-selected="true"] {
+    color: var(--base);
+    border-color: var(--accent);
+  }
+
+  &:focus-visible {
+    outline: var(--squire-surface-stroke) solid var(--accent);
+    outline-offset: var(--squire-space-half);
+  }
+}

@@ -1,0 +1,12 @@
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--squire-space-half);
+  color: var(--base);
+  font: var(--text-small);
+}
+
+.group[data-orientation="horizontal"] {
+  justify-content: start;
+  column-gap: var(--squire-space-1);
+}
